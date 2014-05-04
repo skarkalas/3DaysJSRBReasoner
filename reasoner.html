@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>taffy test</title>
+
+	<script language="javascript" type="text/javascript" src="./scripts/esprima.js"></script>
+	<script language="javascript" type="text/javascript" src="./scripts/taffy.js"></script>
+	<script>
+
+	var facts = TAFFY();
+	var ast = null;
+	var rule = [];
+
+/*
+	facts = TAFFY
+	([
+		{"id":1,	"subject":"x",	"relation":"is",		"property":"array",	"location":"1"},
+		{"id":2,	"subject":"x",	"relation":"length",	"property":"5",		"location":"1"},
+		{"id":3,	"subject":"f",	"relation":"is",		"property":"loop",	"location":"3"},
+		{"id":4,	"subject":"i",	"relation":"is",		"property":"var",	"location":"3"},
+		{"id":5,	"subject":"f",	"relation":"init",		"property":"i",		"location":"3"},
+		{"id":6,	"subject":"f",	"relation":"cond",		"property":"5",		"location":"3"},
+		{"id":7,	"subject":"f",	"relation":"cond",		"property":"i",		"location":"3"},
+		{"id":8,	"subject":"f",	"relation":"step",		"property":"i",		"location":"3"},
+		{"id":9,	"subject":"x",	"relation":"in",		"property":"f",		"location":"6"},
+		{"id":10,	"subject":"i",	"relation":"subscript",	"property":"x",		"location":"6"}
+	]);
+*/	
+	function analyse()
+	{
+		var editor=document.getElementById("editor");
+		var code=editor.value;
+		var options={};
+		options.loc=true;
+		options.range=true;
+		options.raw=true;
+		options.tokens=true;
+		ast = esprima.parse(code, options);
+
+		//analyse the code and generate facts
+		getFacts(ast);
+	}
+	
+	function getFacts(ast)
+	{
+		if(ast===null)
+		{
+			return false;
+		}
+		
+		if(typeof ast!=='object')
+		{
+			return;
+		}
+		
+		if(typeof ast.type!=='string')
+		{
+			return;
+		}
+
+		var record = {};
+		var subject = null;
+		var relation = null;
+		var property = null;
+
+		switch(ast.type.toLowerCase())
+		{
+			case 'program':
+				for(var element in ast.body)
+				{
+					getFacts(ast.body[element]);
+				}
+				break;
+			case 'variabledeclaration':
+				for(var element in ast.declarations)
+				{
+					if(arguments.length === 3)
+					{
+						getFacts(ast.declarations[element], arguments[1], arguments[2]);
+					}
+					else
+					{
+						getFacts(ast.declarations[element]);
+					}
+				}
+				break;
+			case 'variabledeclarator':
+				if(ast.id !== null)
+				{
+					subject  = ast.id.name;
+				}
+				if(ast.init !== null)
+				{
+					relation  = 'is';
+					if(ast.init.type !== null)
+					{
+						if(ast.init.type === 'ArrayExpression')
+						{
+							property  =  'array';
+						}
+						else
+						{
+							property  =  'var';
+						}
+
+						record = new Fact(subject, relation, property);
+						facts.insert(record);
+												
+						if(property === 'array')
+						{
+							relation = 'length';
+							
+							if(ast.init.elements !== null)
+							{
+								property = ast.init.elements.length;
+								record = new Fact(subject, relation, property);
+								facts.insert(record);
+							}					
+						}
+						
+						if(arguments.length === 3)
+						{
+							property = subject;
+							subject = arguments[1];
+							relation = arguments[2];
+							record = new Fact(subject, relation, property);
+							facts.insert(record);
+						}
+					}
+				}
+				break;
+			case 'forstatement':
+				subject = 'f';
+				relation = 'is';
+				property = 'loop';
+				record = new Fact(subject, relation, property);
+				facts.insert(record);
+				getFacts(ast.init, subject, 'init');
+				getFacts(ast.test, subject, 'test');
+				getFacts(ast.update, subject, 'update');
+				getFacts(ast.body, subject, 'includes');
+				break;
+			case 'binaryexpression':
+				if(arguments.length === 3)
+				{
+					getFacts(ast.left, arguments[1], arguments[2]);
+					getFacts(ast.right, arguments[1], arguments[2]);
+				}
+				else
+				{
+					getFacts(ast.left);
+					getFacts(ast.right);
+				}
+				break;
+			case 'assignmentexpression':
+				if(arguments.length === 3)
+				{
+					getFacts(ast.left, arguments[1], arguments[2]);
+					getFacts(ast.right, arguments[1], arguments[2]);
+				}
+				else
+				{
+					getFacts(ast.left);
+					getFacts(ast.right);
+				}
+				break;
+			case 'memberexpression':
+				if(arguments.length === 3)
+				{
+					getFacts(ast.object, arguments[1], arguments[2]);
+				}
+				else
+				{
+					getFacts(ast.object);
+				}
+				break;
+			case 'identifier':
+				if(arguments.length === 3)
+				{
+					subject = arguments[1];
+					relation = arguments[2];
+					property = ast.name;
+					record = new Fact(subject, relation, property);
+					facts.insert(record);
+				}
+				break;
+			case 'literal':
+				if(arguments.length === 3)
+				{
+					subject = arguments[1];
+					relation = arguments[2];
+					property = ast.raw;
+					record = new Fact(subject, relation, property);
+					facts.insert(record);
+				}
+				break;
+			case 'updateexpression':
+				if(arguments.length === 3)
+				{
+					getFacts(ast.argument, arguments[1], arguments[2]);
+				}
+				break;
+			case 'blockstatement':
+				if(arguments.length === 3)
+				{
+					for(var element in ast.body)
+					{
+						getFacts(ast.body[element], arguments[1], arguments[2]);
+					}
+				}
+				else
+				{
+					for(var element in ast.body)
+					{
+						getFacts(ast.body[element]);
+					}
+				}
+				break;
+			case 'expressionstatement':
+				if(arguments.length === 3)
+				{
+					getFacts(ast.expression, arguments[1], arguments[2]);
+				}
+				else
+				{
+					getFacts(ast.expression);
+				}
+				break;
+
+
+/*
+			case 'functiondeclaration':
+				analyseCode(ast.body);
+				var recursive=false;
+				characteristics.Recursion=characteristics.Recursion||(recursive=isRecursive(ast.body, ast.id.name));
+				characteristics.TRecursion=characteristics.TRecursion||(recursive==true&&isTRecursive(ast.body, ast.id.name));
+				break;
+			case 'callexpression':
+				for(var element in ast.arguments)
+				{
+					analyseCode(ast.arguments[element]);
+				}
+				break;
+			case 'expressionstatement':
+				analyseCode(ast.expression);
+				break;
+			case 'callexpression':
+				for(var element in ast.arguments)
+				{
+					analyseCode(ast.arguments[element]);
+				}
+				break;
+			case 'updateexpression':
+				//increment No of operators
+				characteristics.N1++
+				characteristics.uniqueOperators[ast.operator]=true;
+				//increment total No of operands
+				characteristics.N2++;
+				//update unique operands
+				characteristics.uniqueOperands[getOperandAsText(ast.argument)]=true;
+				break;
+			case 'binaryexpression':
+				//increment total No of operators
+				characteristics.N1++;
+				//update unique operators
+				characteristics.uniqueOperators[ast.operator]=true;
+				//increment total No of operands
+				characteristics.N2+=2;
+				//update unique operands
+				characteristics.uniqueOperands[getOperandAsText(ast.left)]=true;
+				characteristics.uniqueOperands[getOperandAsText(ast.right)]=true;
+				//analyse sub-trees
+				analyseCode(ast.left);
+				analyseCode(ast.right);
+				break;
+			case 'assignmentexpression':
+				//assignment operation
+				characteristics.NAS++;
+				analyseCode(ast.right);
+				break;
+			case 'forstatement':
+				analyseCode(ast.init);			
+				analyseCode(ast.update);			
+			case 'dowhilestatement':
+			case 'whilestatement':
+				characteristics.NoL++;
+				analyseCode(ast.body);
+				analyseCode(ast.test);
+				getImmediateNestedLoop(ast.body);
+				characteristics.MCC++;
+				break;
+			case 'blockstatement':
+				characteristics.NoB++;
+				for(var element in ast.body)
+				{
+					analyseCode(ast.body[element]);
+				}
+				break;
+			case 'ifstatement':
+				characteristics.MCC++;
+				if(ast.alternate!==null)
+				{
+					analyseCode(ast.alternate);
+				}
+				analyseCode(ast.consequent);
+				analyseCode(ast.test);
+				break;
+			case 'switchstatement':
+				for(var element in ast.cases)
+				{
+					analyseCode(ast.cases[element]);
+				}
+				analyseCode(ast.discriminant);
+				break;
+			case 'switchcase':
+				characteristics.MCC++;
+				for(var element in ast.consequent)
+				{
+					analyseCode(ast.consequent[element]);
+				}
+				break;
+*/
+			default:
+		}	
+	}
+
+	function checkRules()
+	{
+		rule[rule.length] = facts({"relation":"is"},{"property":"array"}).select("subject");
+		rule[rule.length] = facts({"subject":rule[0]},{"relation":"length"}).select("property");
+		rule[rule.length] = facts({"relation":"is"},{"property":"loop"}).select("subject");
+		rule[rule.length] = facts({"relation":"includes"},{"subject":rule[2]}).select("property");
+		rule[rule.length] = facts({"subject":rule[2]},{"relation":"test"}).select("property");
+		console.log(rule[3].indexOf(rule[0].toString())>-1);
+		console.log(rule[4].indexOf(rule[1].toString())>-1);
+	}
+	
+	function Fact(subject, relation, property)
+	{
+		this.subject = subject;
+		this.relation = relation;
+		this.property = property;
+	}
+ </script>
+</head>
+<body>
+<div>
+Please open your javascript console to see test results
+</div>
+	<h1>Reasoner</h1>
+	<input id="do" type="button" onclick="analyse()" value="Analyse"/>
+	<input id="do1" type="button" onclick="checkRules()" value="check Rules"/>
+	<hr/>
+	<textarea id="editor" rows="40" cols="100">
+var x = [2,5,1,8,9];
+
+for (var i = 0; i <= 5; i++)
+{
+ var sum = 0;
+ sum += x[i];
+}
+
+alert(sum);
+	</textarea> 
+</body>
+</html>
