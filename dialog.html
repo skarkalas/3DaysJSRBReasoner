@@ -1,0 +1,84 @@
+<html>
+<head>
+	<title>Dialog</title>
+	
+	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.4/themes/start/jquery-ui.css" media="screen">
+	<link rel="stylesheet" type="text/css" href="./styles/dialog.css" media="screen">
+
+	<script type="text/javascript" charset="utf-8" src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+	<script type="text/javascript" charset="utf-8" src="http://code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>	
+	
+	<script type="text/javascript" charset="utf-8" src="./scripts/dialog.js"></script> 	
+
+</head>
+<body>
+
+	<div id="dialog-form" title="Rule Editor">
+		<form>
+		<table id='buttons'>
+		<tbody>
+		<tr>
+			<td>
+				<input type='button' id="pattern1" value='subject &lt- property'></input>
+			</td>
+			<td>
+				<input type='button' id="pattern2" value='property &lt- subject'></input>
+			</td>
+		</tr>
+		</tbody>
+		<tfoot>
+		<tr>
+			<td colspan='2'>
+				<input type='button' id="submit" value='Submit Rule' onclick='submitData()'></input>
+			</td>
+		</tr>		
+		</tfoot>
+		</table>
+		<fieldset>
+			<legend>Statements</legend>
+			<table id='statements' class='data'>
+			<thead>
+			<tr>
+				<td width='30%'>
+					<span>part 1</span>
+				</td>
+				<td width='30%'>
+					<span>part 2</span>
+				</td>
+				<td width='30%'>
+					<span>part 3</span>
+				</td>
+				<td>
+					<span>delete</span>
+				</td>
+			</tr>
+			</thead>
+			<tbody>
+			</tbody>
+			</table>
+		</fieldset>
+		<br/>
+		<fieldset>
+			<legend>Rules</legend>
+			<table id='rules' class='data'>
+			<tr>
+				<td width='30%'>
+					<span>part 1</span>
+				</td>
+				<td width='30%'>
+					<span>part 2</span>
+				</td>
+				<td width='30%'>
+					<span>part 3</span>
+				</td>
+				<td>
+					<span>delete</span>
+				</td>
+			</tr>
+			</table>
+		</fieldset>
+		</form>
+	</div>
+	
+</body>
+</html>
