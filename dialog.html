@@ -19,19 +19,50 @@
 		<tbody>
 		<tr>
 			<td>
+				<span style='font-size:18px;'>Rule Name (ID):</span>
+			</td>
+			<td colspan='2'>
+				<input type='text'></input>
+			</td>
+		</tr>
+		<tr>
+		<td colspan='3'><hr/></td>
+		</tr>
+		<tr>
+			<td>
+				<span style='font-size:18px;'>New Statement:</span>
+			</td>
+			<td>
 				<input type='button' id="pattern1" value='subject &lt- property'></input>
 			</td>
 			<td>
 				<input type='button' id="pattern2" value='property &lt- subject'></input>
 			</td>
 		</tr>
-		</tbody>
-		<tfoot>
 		<tr>
-			<td colspan='2'>
+			<td>
+				<span style='font-size:18px;'>New Rule:</span>
+			</td>
+			<td>
+				<input type='button' id="newrule" value='Insert'></input>
+			</td>
+		</tr>
+		<tr>
+		<td colspan='3'><hr/></td>
+		</tr>
+		<tr>
+			<td>
+				<span style='font-size:18px;'></span>
+			</td>
+			<td>
+				<input type='button' id="exit" value='Exit' onclick='exit()'></input>
+			</td>
+			<td>
 				<input type='button' id="submit" value='Submit Rule' onclick='submitData()'></input>
 			</td>
-		</tr>		
+		</tr>
+		</tbody>
+		<tfoot>
 		</tfoot>
 		</table>
 		<fieldset>

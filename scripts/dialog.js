@@ -8,6 +8,8 @@ $j(document).ready
 		var pattern1 = $j("#pattern1").button();
 		var pattern2 = $j("#pattern2").button();
 		var submit = $j("#submit").button();
+		var newrule = $j("#newrule").button();
+		var exit = $j("#exit").button();
 		
 		pattern1.click
 		(
@@ -24,6 +26,76 @@ $j(document).ready
 				insertStatement($j(this).attr('id'));
 			}
 		);
+
+		newrule.click
+		(
+			function()
+			{
+				insertRule();
+			}
+		);
+
+		submit.click
+		(
+			function()
+			{
+				var rule = {};
+				var valid = validateRule(rule);
+				
+				if(valid === false)
+				{
+					return;
+				}
+			}
+		);		
+		
+		function insertRule()
+		{
+			//find out how many statements are available
+			var statementNo = values.length;
+			
+			if(statementNo < 2)
+			{
+				alert('You have to have at least 2 statements in order to form a rule.');
+				return;
+			}
+
+			var rules=document.getElementById('rules');
+			
+			if(rules===null)
+			{
+				return;
+			}
+
+			//append a new row
+			var row = rules.insertRow(-1);
+			var cell0 = row.insertCell(0);
+			var cell1 = row.insertCell(1);
+			var cell2 = row.insertCell(2);
+			var cell3 = row.insertCell(3);
+			
+			var availableValues = getAvailableValues();
+			
+			cell0.innerHTML = availableValues;	
+			
+			var operator = '';
+			operator += '<select>';
+			operator += '<option value="" selected>select an operator</option>';
+			operator += '<option value="==">==</option>';
+			operator += '<option value="!=">!=</option>';
+			operator += '<option value=">">&gt</option>';
+			operator += '<option value=">=">&gt=</option>';
+			operator += '<option value="<">&lt</option>';
+			operator += '<option value="<=">&lt=</option>';
+			operator += '<option value="in">in</option>';
+			operator += '</select>';
+			
+			cell1.innerHTML = operator;	
+			cell2.innerHTML = availableValues;	
+			
+			var deleteOption = '<input type="button" value="delete" onclick="deleteRule(this)"/>';
+			cell3.innerHTML = deleteOption;
+		}
 		
 		function insertStatement(pattern)
 		{
@@ -170,6 +242,15 @@ function getAvailableValues()
 	return value;
 }
 
+function deleteRule(object)
+{
+	//get a reference to the enclosing <TR> element
+	var row = object.parentNode.parentNode;
+	
+	//remove row
+	row.parentNode.removeChild(row);
+}
+
 function deleteStatement(object)
 {
 	//get a reference to the enclosing <TR> element
@@ -204,7 +285,128 @@ function deleteStatement(object)
 		var cell0 = row.cells[0];
 		cell0.innerHTML = getNextValue();
 	}
+	
+	//get a reference to the rules table
+	var rules=document.getElementById('rules');
+	
+	if(rules===null)
+	{
+		return;
+	}
+	
+	while(rules.rows.length > 1)
+	{
+		rules.deleteRow(-1);
+	}
 }
+
+function validateRule(rule)
+{
+	//get a reference to the statements table
+	var statements=document.getElementById('statements');
+	
+	if(statements === null)
+	{
+		alert('Serious error occured: there is no statements table.');
+		return false;
+	}
+	
+	//get a reference to the rules table
+	var rules=document.getElementById('rules');
+	
+	if(rules === null)
+	{
+		alert('Serious error occured: there is no rules table.');
+		return;
+	}
+	
+	var statementsLength = statements.rows.length;
+	
+	if(statementsLength < 3)
+	{
+		alert('There must be at least 2 statements in the definition.');
+		return false;
+	}
+	
+	var rulesLength = rules.rows.length;
+
+	if(rulesLength < 2)
+	{
+		alert('There must be at least 1 rule in the definition.');
+		return false;
+	}
+
+	rule.name = 'test'
+	rule.statements = [];
+	
+	for(var i = 1; i < statementsLength; i++)
+	{
+		var row = statements.rows[i];
+		var cell0 = row.cells[0];
+		var cell1 = row.cells[1];
+		var cell2 = row.cells[2];
+
+		var part1 = cell0.innerHTML;
+		var part2 = cell1.firstChild.options[cell1.firstChild.selectedIndex].value;
+		var part3 = cell2.firstChild.options[cell2.firstChild.selectedIndex].value;
+		
+		if(part2 === '' || part3 === '')
+		{
+			alert('Incomplete statements found.');
+			return false;
+		}
+		
+		var statement = {};
+		var pattern = cell2.firstChild.getAttribute('class') === 'values' ? 1 : 2;
+		statement.relation = part2;
+		
+		if(pattern === 1)
+		{
+			statement.subject = part1;
+			statement.property = part3;
+			statement.select = 'subject';
+		}
+		else
+		{
+			statement.subject = part3;
+			statement.property = part1;
+			statement.select = 'property';
+		}
+		
+		rule.statements.push(statement);		
+	}
+	
+	rule.rules = [];
+	
+	for(var i = 1; i < rulesLength; i++)
+	{
+		var row = rules.rows[i];
+		var cell0 = row.cells[0];
+		var cell1 = row.cells[1];
+		var cell2 = row.cells[2];
+
+		var part1 = cell0.firstChild.options[cell0.firstChild.selectedIndex].value;
+		var part2 = cell1.firstChild.options[cell1.firstChild.selectedIndex].value;
+		var part3 = cell2.firstChild.options[cell2.firstChild.selectedIndex].value;
+		
+		if(part1 === '' || part2 === '' || part3 === '')
+		{
+			alert('Incomplete rules found.');
+			return false;
+		}
+		
+		var subrule = {};
+		subrule.operand1 = part1;
+		subrule.operator = part2;
+		subrule.operand2 = part3;
+		
+		rule.rules.push(subrule);
+	}
+	
+	return true;
+	//alert(JSON.stringify(rule));
+}
+
 /*
 function submitData()
 {

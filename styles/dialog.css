@@ -1,4 +1,4 @@
-fieldset
+fieldset, span
 {
 	font-family:"Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
 	font-size:12px;
@@ -16,7 +16,8 @@ legend
 
 select, input
 {
-	width: 100%
+	width: 100%;
+	text-align:center
 }
 
 .data {
