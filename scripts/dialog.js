@@ -46,6 +46,8 @@ $j(document).ready
 				{
 					return;
 				}
+				
+				$j('#area').val(JSON.stringify(rule));
 			}
 		);		
 		
@@ -357,7 +359,7 @@ function validateRule(rule)
 		}
 		
 		var statement = {};
-		var pattern = cell2.firstChild.getAttribute('class') === 'values' ? 1 : 2;
+		var pattern = cell2.firstChild.getAttribute('class') === 'values' ? 2 : 1;
 		statement.relation = part2;
 		
 		if(pattern === 1)
@@ -404,7 +406,6 @@ function validateRule(rule)
 	}
 	
 	return true;
-	//alert(JSON.stringify(rule));
 }
 
 /*

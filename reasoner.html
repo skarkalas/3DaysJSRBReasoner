@@ -343,6 +343,13 @@
 		this.relation = relation;
 		this.property = property;
 	}
+	
+	function getSupport()
+	{
+		var editor=document.getElementById("editor");
+		var code=editor.value;
+		reasoner.getSupport(code);
+	}
  </script>
 </head>
 <body>
@@ -350,7 +357,7 @@
 Please open your javascript console to see test results
 </div>
 	<h1>Reasoner</h1>
-	<input id="do" type="button" onclick="analyse()" value="Analyse"/>
+	<input id="do" type="button" onclick="getSupport()" value="Get Support"/>
 	<input id="do1" type="button" onclick="checkRules()" value="check Rules"/>
 	<hr/>
 	<textarea id="editor" rows="40" cols="100">

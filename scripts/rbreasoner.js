@@ -1,3 +1,6 @@
+var reasoner = new RBReasoner();
+reasoner.init();
+
 //definition for RB Reasoner
 //============================================================
 	
@@ -8,19 +11,110 @@ function RBReasoner()
 
 	//member variables
 	//========================================================
-	this.wm=null;							//working memory
-	
+	this.wm = null;							//working memory
+	this.kb = null;							//knowledge base
+
 	//initialisation function - executed only once
 	(
 		function(object)
 		{
-			object.wm = TAFFY();			//empty database
+			object.wm = TAFFY();			//empty database for wm
+			object.kb = TAFFY();			//empty database for kb
 		}
 	)(this);
 	
 	//member methods
 	//========================================================
 
+	//further initialisation initiated by the user
+	this.init = function()
+	{
+		this.loadKB();				//load kb with rules
+	}
+	
+	//load kb with rules
+	this.loadKB = function()
+	{
+		var rule = {"name":"test","statements":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"length","subject":"v1","property":"v2","select":"property"},{"relation":"is","subject":"v3","property":"loop","select":"subject"},{"relation":"includes","subject":"v3","property":"v4","select":"property"},{"relation":"test","subject":"v3","property":"v5","select":"property"}],"rules":[{"operand1":"v1","operator":"in","operand2":"v4"},{"operand1":"v2","operator":"in","operand2":"v5"}]};
+		this.kb.insert(rule);
+	}
+	
+	//checks whether facts satisfy rules and activate them (Rule Activation Component)
+	this.activateRules = function()
+	{
+		//if there are no facts return
+		if(this.wm().count() === 0)
+		{
+			return;
+		}
+		
+		var wm = this.wm;
+		var kb = this.kb;
+
+		//check every rule with the given facts
+		kb().each
+		(
+			function (record, recordnumber)
+			{
+				var ruleName = record.name;
+				var statements = record.statements;
+				var rules = record.rules;
+
+				var facts = [];
+
+				//declare the facts
+				for(stm in statements)
+				{
+					stm = statements[stm];
+
+					if(stm.select === 'subject')
+					{
+						facts[facts.length] = wm({'relation':stm.relation},{'property':stm.property}).select(stm.select);
+					}
+					else
+					{
+						facts[facts.length] = wm({'relation':stm.relation},{'subject':facts[stm.subject.substring(1) - 1]}).select(stm.select);
+					}
+				}
+			
+				var condition = true;
+
+				//check the rules
+				for(rule in rules)
+				{
+					rule = rules[rule];
+					var operand1 = rule.operand1.substring(1) - 1;
+					var operand2 = rule.operand2.substring(1) - 1;
+
+					if(rule.operator === 'in')
+					{
+						condition = condition && facts[operand2].indexOf(facts[operand1]+'') > -1;
+					}
+					else
+					{
+						condition = condition && eval(facts[operand1] + rule.operator + facts[operand2]);
+					}
+				}
+
+				alert(condition);
+//				alert(record['name'] + ' ' + recordnumber);
+			}
+		);
+	}
+	
+	//analyses code, identifies misconceptions and decides on how to support the student
+	this.getSupport = function(code)
+	{
+		//use esprima to get the AST
+		var ast = this.getAST(code, true, true, true, true);
+		
+		//get the facts
+		this.getFacts(ast);
+		
+		//activate rules
+		this.activateRules();
+	}
+	
 	//parses code and generates abstract syntax tree (AST)
 	this.getAST = function(code, location, range, raw, tokens)
 	{
@@ -34,11 +128,11 @@ function RBReasoner()
 	}
 	
 	//analyses AST and populates the WM with facts (Fact Acquisition Component)
-	function getFacts(ast)
+	this.getFacts = function(ast)
 	{
 		if(ast===null)
 		{
-			return false;
+			return;
 		}
 		
 		if(typeof ast!=='object')
@@ -61,7 +155,7 @@ function RBReasoner()
 			case 'program':
 				for(var element in ast.body)
 				{
-					getFacts(ast.body[element]);
+					this.getFacts(ast.body[element]);
 				}
 				break;
 			case 'variabledeclaration':
@@ -69,11 +163,11 @@ function RBReasoner()
 				{
 					if(arguments.length === 3)
 					{
-						getFacts(ast.declarations[element], arguments[1], arguments[2]);
+						this.getFacts(ast.declarations[element], arguments[1], arguments[2]);
 					}
 					else
 					{
-						getFacts(ast.declarations[element]);
+						this.getFacts(ast.declarations[element]);
 					}
 				}
 				break;
@@ -128,43 +222,43 @@ function RBReasoner()
 				property = 'loop';
 				record = new Fact(subject, relation, property);
 				this.wm.insert(record);
-				getFacts(ast.init, subject, 'init');
-				getFacts(ast.test, subject, 'test');
-				getFacts(ast.update, subject, 'update');
-				getFacts(ast.body, subject, 'includes');
+				this.getFacts(ast.init, subject, 'init');
+				this.getFacts(ast.test, subject, 'test');
+				this.getFacts(ast.update, subject, 'update');
+				this.getFacts(ast.body, subject, 'includes');
 				break;
 			case 'binaryexpression':
 				if(arguments.length === 3)
 				{
-					getFacts(ast.left, arguments[1], arguments[2]);
-					getFacts(ast.right, arguments[1], arguments[2]);
+					this.getFacts(ast.left, arguments[1], arguments[2]);
+					this.getFacts(ast.right, arguments[1], arguments[2]);
 				}
 				else
 				{
-					getFacts(ast.left);
-					getFacts(ast.right);
+					this.getFacts(ast.left);
+					this.getFacts(ast.right);
 				}
 				break;
 			case 'assignmentexpression':
 				if(arguments.length === 3)
 				{
-					getFacts(ast.left, arguments[1], arguments[2]);
-					getFacts(ast.right, arguments[1], arguments[2]);
+					this.getFacts(ast.left, arguments[1], arguments[2]);
+					this.getFacts(ast.right, arguments[1], arguments[2]);
 				}
 				else
 				{
-					getFacts(ast.left);
-					getFacts(ast.right);
+					this.getFacts(ast.left);
+					this.getFacts(ast.right);
 				}
 				break;
 			case 'memberexpression':
 				if(arguments.length === 3)
 				{
-					getFacts(ast.object, arguments[1], arguments[2]);
+					this.getFacts(ast.object, arguments[1], arguments[2]);
 				}
 				else
 				{
-					getFacts(ast.object);
+					this.getFacts(ast.object);
 				}
 				break;
 			case 'identifier':
@@ -190,7 +284,7 @@ function RBReasoner()
 			case 'updateexpression':
 				if(arguments.length === 3)
 				{
-					getFacts(ast.argument, arguments[1], arguments[2]);
+					this.getFacts(ast.argument, arguments[1], arguments[2]);
 				}
 				break;
 			case 'blockstatement':
@@ -198,27 +292,28 @@ function RBReasoner()
 				{
 					for(var element in ast.body)
 					{
-						getFacts(ast.body[element], arguments[1], arguments[2]);
+						this.getFacts(ast.body[element], arguments[1], arguments[2]);
 					}
 				}
 				else
 				{
 					for(var element in ast.body)
 					{
-						getFacts(ast.body[element]);
+						this.getFacts(ast.body[element]);
 					}
 				}
 				break;
 			case 'expressionstatement':
 				if(arguments.length === 3)
 				{
-					getFacts(ast.expression, arguments[1], arguments[2]);
+					this.getFacts(ast.expression, arguments[1], arguments[2]);
 				}
 				else
 				{
-					getFacts(ast.expression);
+					this.getFacts(ast.expression);
 				}
 				break;
 			default:
 		}	
 	}
+}
