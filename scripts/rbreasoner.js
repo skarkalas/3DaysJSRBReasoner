@@ -13,6 +13,7 @@ function RBReasoner()
 	//========================================================
 	this.wm = null;							//working memory
 	this.kb = null;							//knowledge base
+	this.agenda = null;						//activated rules
 
 	//initialisation function - executed only once
 	(
@@ -20,6 +21,7 @@ function RBReasoner()
 		{
 			object.wm = TAFFY();			//empty database for wm
 			object.kb = TAFFY();			//empty database for kb
+			object.agenda = TAFFY();		//empty database for agenda
 		}
 	)(this);
 	
@@ -35,8 +37,17 @@ function RBReasoner()
 	//load kb with rules
 	this.loadKB = function()
 	{
-		var rule = {"name":"test","statements":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"length","subject":"v1","property":"v2","select":"property"},{"relation":"is","subject":"v3","property":"loop","select":"subject"},{"relation":"includes","subject":"v3","property":"v4","select":"property"},{"relation":"test","subject":"v3","property":"v5","select":"property"}],"rules":[{"operand1":"v1","operator":"in","operand2":"v4"},{"operand1":"v2","operator":"in","operand2":"v5"}]};
+		//var rule = {"name":"test","statements":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"length","subject":"v1","property":"v2","select":"property"},{"relation":"is","subject":"v3","property":"loop","select":"subject"},{"relation":"includes","subject":"v3","property":"v4","select":"property"},{"relation":"test","subject":"v3","property":"v5","select":"property"}],"rules":[{"operand1":"v1","operator":"in","operand2":"v4"},{"operand1":"v2","operator":"in","operand2":"v5"}]};
+		//this.kb.insert(rule);
+		//rule = {"name":"test1","statements":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"length","subject":"v1","property":"v2","select":"property"},{"relation":"is","subject":"v3","property":"var","select":"subject"},{"relation":"is","subject":"v4","property":"loop","select":"subject"},{"relation":"includes","subject":"v4","property":"v5","select":"property"},{"relation":"equals","subject":"v6","property":"<=","select":"subject"},{"relation":"test","subject":"v4","property":"v7","select":"property"},{"relation":"subscript","subject":"v1","property":"v8","select":"property"}],"rules":[{"operand1":"v1","operator":"in","operand2":"v5"},{"operand1":"v3","operator":"in","operand2":"v5"},{"operand1":"v2","operator":"in","operand2":"v7"},{"operand1":"v3","operator":"in","operand2":"v7"},{"operand1":"v6","operator":"in","operand2":"v7"},{"operand1":"v3","operator":"==","operand2":"v8"}]};
+		var rule = {"name":"test1","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"loop","select":"subject"},{"relation":"includes","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"test","subject":"v2","property":"v5","select":"property"},{"relation":"equals","subject":"v6","property":"<=","select":"subject"},{"relation":"is","subject":"v7","property":"var","select":"subject"},{"relation":"subscript","subject":"v1","property":"v8","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":"[]"},{"operand1":"v2","operator":"!=","operand2":"[]"},{"operand1":"v1","operator":"in","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"in","operand2":"v5"},{"operand1":"v6","operator":"in","operand2":"v5"},{"operand1":"v7","operator":"in","operand2":"v5"},{"operand1":"v7","operator":"==","operand2":"v8"}]};
 		this.kb.insert(rule);
+		//console.table(this.kb({'name':'test1'}));
+	}
+	
+	this.displayFacts = function()
+	{
+		console.table(this.wm().get());		
 	}
 	
 	//checks whether facts satisfy rules and activate them (Rule Activation Component)
@@ -50,12 +61,19 @@ function RBReasoner()
 		
 		var wm = this.wm;
 		var kb = this.kb;
+		var agenda = this.agenda;
+		var checkRule = this.checkRule;
 
 		//check every rule with the given facts
 		kb().each
 		(
 			function (record, recordnumber)
 			{
+				var rule = JSON.parse(JSON.stringify(record));
+				var test = checkRule(rule);
+				alert(test);
+/*			
+			
 				var ruleName = record.name;
 				var statements = record.statements;
 				var rules = record.rules;
@@ -96,10 +114,24 @@ function RBReasoner()
 					}
 				}
 
-				alert(condition);
+				if(condition === true)
+				{
+					var activeRule = {};
+					activeRule.name = ruleName;
+					activeRule.factCount = facts.length;
+					agenda.insert(activeRule);
+				}
 //				alert(record['name'] + ' ' + recordnumber);
+*/
 			}
 		);
+	}
+	
+	//checks whether a rule needs to be activated
+	this.checkRule = function(rule)
+	{
+		alert(rule);
+		return false;
 	}
 	
 	//analyses code, identifies misconceptions and decides on how to support the student
@@ -110,9 +142,12 @@ function RBReasoner()
 		
 		//get the facts
 		this.getFacts(ast);
-		
+
 		//activate rules
 		this.activateRules();
+		
+		//check agenda to see if there are active rules
+		alert(this.agenda().count());
 	}
 	
 	//parses code and generates abstract syntax tree (AST)
@@ -228,8 +263,18 @@ function RBReasoner()
 				this.getFacts(ast.body, subject, 'includes');
 				break;
 			case 'binaryexpression':
+				subject = ast.operator;
+				relation = 'equals';
+				property = ast.operator;
+				record = new Fact(subject, relation, property);
+				this.wm.insert(record);
 				if(arguments.length === 3)
 				{
+					subject = arguments[1];
+					relation = arguments[2];
+					property = ast.operator;
+					record = new Fact(subject, relation, property);
+					this.wm.insert(record);
 					this.getFacts(ast.left, arguments[1], arguments[2]);
 					this.getFacts(ast.right, arguments[1], arguments[2]);
 				}
@@ -252,9 +297,18 @@ function RBReasoner()
 				}
 				break;
 			case 'memberexpression':
+				if(ast.object.type === 'Identifier' && ast.property.type === 'Identifier')
+				{
+					subject = ast.object.name;
+					relation = 'subscript';
+					property = ast.property.name;
+					record = new Fact(subject, relation, property);
+					this.wm.insert(record);				
+				}
 				if(arguments.length === 3)
 				{
 					this.getFacts(ast.object, arguments[1], arguments[2]);
+					this.getFacts(ast.property, arguments[1], arguments[2]);
 				}
 				else
 				{

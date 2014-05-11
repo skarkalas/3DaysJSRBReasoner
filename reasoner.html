@@ -143,6 +143,7 @@
 				getFacts(ast.body, subject, 'includes');
 				break;
 			case 'binaryexpression':
+			
 				if(arguments.length === 3)
 				{
 					getFacts(ast.left, arguments[1], arguments[2]);
@@ -358,10 +359,11 @@ Please open your javascript console to see test results
 </div>
 	<h1>Reasoner</h1>
 	<input id="do" type="button" onclick="getSupport()" value="Get Support"/>
-	<input id="do1" type="button" onclick="checkRules()" value="check Rules"/>
+	<input id="do1" type="button" onclick="analyse()" value="analyse"/>
 	<hr/>
 	<textarea id="editor" rows="40" cols="100">
 var x = [2,5,1,8,9];
+var y = [1,2];
 
 for (var i = 0; i <= 5; i++)
 {

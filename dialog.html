@@ -22,7 +22,7 @@
 				<span style='font-size:18px;'>Rule Name (ID):</span>
 			</td>
 			<td colspan='2'>
-				<input type='text'></input>
+				<input id='ruleID' type='text'></input>
 			</td>
 		</tr>
 		<tr>
@@ -30,21 +30,13 @@
 		</tr>
 		<tr>
 			<td>
-				<span style='font-size:18px;'>New Statement:</span>
+				<span style='font-size:18px;'>New Fact:</span>
 			</td>
 			<td>
 				<input type='button' id="pattern1" value='subject &lt- property'></input>
 			</td>
 			<td>
 				<input type='button' id="pattern2" value='property &lt- subject'></input>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<span style='font-size:18px;'>New Rule:</span>
-			</td>
-			<td>
-				<input type='button' id="newrule" value='Insert'></input>
 			</td>
 		</tr>
 		<tr>
@@ -55,28 +47,32 @@
 				<span style='font-size:18px;'></span>
 			</td>
 			<td>
-				<input type='button' id="exit" value='Exit' onclick='exit()'></input>
+				<input type='button' id="exit" value='Exit'></input>
 			</td>
 			<td>
-				<input type='button' id="submit" value='Submit Rule' onclick='submitData()'></input>
+				<input type='button' id="submit" value='Submit Rule'></input>
 			</td>
 		</tr>
 		</tbody>
 		<tfoot>
 		</tfoot>
 		</table>
+		
+		<table style='width:100%'>
+		<tr>
+		<td style='vertical-align:top;width:50%'>
 		<fieldset>
-			<legend>Statements</legend>
-			<table id='statements' class='data'>
+			<legend>Facts</legend>
+			<table id='facts' class='data'>
 			<thead>
 			<tr>
-				<td width='30%'>
+				<td style='width:15%'>
 					<span>part 1</span>
 				</td>
-				<td width='30%'>
+				<td style='width:35%'>
 					<span>part 2</span>
 				</td>
-				<td width='30%'>
+				<td style='width:35%'>
 					<span>part 3</span>
 				</td>
 				<td>
@@ -88,7 +84,8 @@
 			</tbody>
 			</table>
 		</fieldset>
-		<br/>
+		</td>
+		<td style='vertical-align:top'>
 		<fieldset>
 			<legend>Rules</legend>
 			<table id='rules' class='data'>
@@ -103,13 +100,16 @@
 					<span>part 3</span>
 				</td>
 				<td>
-					<span>delete</span>
+					<span>state</span>
 				</td>
 			</tr>
 			</table>
 		</fieldset>
+		</td>
+		</tr>
+		</table>
 		</form>
 	</div>
-	<textarea id='area'></textarea>
+	<textarea id='area' style='width:500px;height:400px'></textarea>
 </body>
 </html>

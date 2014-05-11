@@ -8,14 +8,13 @@ $j(document).ready
 		var pattern1 = $j("#pattern1").button();
 		var pattern2 = $j("#pattern2").button();
 		var submit = $j("#submit").button();
-		var newrule = $j("#newrule").button();
 		var exit = $j("#exit").button();
 		
 		pattern1.click
 		(
 			function()
 			{
-				insertStatement($j(this).attr('id'));
+				insertFact($j(this).attr('id'));
 			}
 		);
 
@@ -23,15 +22,7 @@ $j(document).ready
 		(
 			function()
 			{
-				insertStatement($j(this).attr('id'));
-			}
-		);
-
-		newrule.click
-		(
-			function()
-			{
-				insertRule();
+				insertFact($j(this).attr('id'));
 			}
 		);
 
@@ -53,15 +44,6 @@ $j(document).ready
 		
 		function insertRule()
 		{
-			//find out how many statements are available
-			var statementNo = values.length;
-			
-			if(statementNo < 2)
-			{
-				alert('You have to have at least 2 statements in order to form a rule.');
-				return;
-			}
-
 			var rules=document.getElementById('rules');
 			
 			if(rules===null)
@@ -78,7 +60,7 @@ $j(document).ready
 			
 			var availableValues = getAvailableValues();
 			
-			cell0.innerHTML = availableValues;	
+			cell0.innerHTML = '<select class="values">' + availableValues + '</select>';
 			
 			var operator = '';
 			operator += '<select>';
@@ -93,32 +75,32 @@ $j(document).ready
 			operator += '</select>';
 			
 			cell1.innerHTML = operator;	
-			cell2.innerHTML = availableValues;	
+			cell2.innerHTML = '<select class="values">' + availableValues + '<option value="[]">empty</option></select>';	
 			
-			var deleteOption = '<input type="button" value="delete" onclick="deleteRule(this)"/>';
-			cell3.innerHTML = deleteOption;
+			var stateOption = '<input type="button" value="active" onclick="changeRuleState(this)"/>';
+			cell3.innerHTML = stateOption;
 		}
-		
-		function insertStatement(pattern)
+				
+		function insertFact(pattern)
 		{
-			var data=document.getElementById('statements');
+			var facts=document.getElementById('facts');
 			
-			if(data===null)
+			if(facts===null)
 			{
 				return;
 			}
 			
 			//find table size
-			var rows = data.rows.length;
+			var rows = facts.rows.length;
 			
 			if(pattern === 'pattern2' && rows === 1)
 			{
-				alert('This pattern cannot be used for the first statement');
+				alert('This pattern cannot be used for the first fact');
 				return;
 			}
 			
 			//append a new row
-			var row = data.insertRow(-1);
+			var row = facts.insertRow(-1);
 			var cell0 = row.insertCell(0);
 			var cell1 = row.insertCell(1);
 			var cell2 = row.insertCell(2);
@@ -129,6 +111,7 @@ $j(document).ready
 			relation += '<option value="" selected>select a relation</option>';
 			relation += '<option value="is">is</option>';
 			relation += '<option value="includes">includes</option>';
+			relation += '<option value="equals">equals</option>';
 			relation += '<option value="length">length</option>';
 			relation += '<option value="init">init</option>';
 			relation += '<option value="test">test</option>';
@@ -142,12 +125,19 @@ $j(document).ready
 			property += '<option value="var">var</option>';
 			property += '<option value="array">array</option>';
 			property += '<option value="loop">loop</option>';
+			property += '<option value="==">==</option>';
+			property += '<option value="!=">!=</option>';
+			property += '<option value=">">&gt</option>';
+			property += '<option value=">=">&gt=</option>';
+			property += '<option value="<">&lt</option>';
+			property += '<option value="<=">&lt=</option>';
+			
 			property += '</select>';	
 			
-			var deleteOption = '<input type="button" value="delete" onclick="deleteStatement(this)"/>';
+			var deleteOption = '<input type="button" value="delete" onclick="deleteFact(this)"/>';
 			cell3.innerHTML = deleteOption;
 			
-			var availableValues = getAvailableValues();
+			var availableValues = '<select class="values">' + getAvailableValues() + '</select>';
 			
 			cell0.innerHTML = getNextValue();
 
@@ -161,6 +151,8 @@ $j(document).ready
 				cell1.innerHTML = relation;
 				cell2.innerHTML = availableValues;			
 			}
+			
+			insertRule();
 		}
 		
 /*		populate(window.dialogArguments);
@@ -223,6 +215,31 @@ $j(document).ready
 	}
 );
 
+function changeRuleState(object)
+{
+	var parent = object.parentNode.parentNode;
+	var node1 = parent.firstChild.firstChild;
+	var node2 = parent.firstChild.nextSibling.firstChild;
+	var node3 = parent.lastChild.previousSibling.firstChild;
+	
+	var state = object.value;
+	
+	if(state === 'active')
+	{
+		object.value = 'inactive';
+		node1.setAttribute('disabled','disabled');
+		node2.setAttribute('disabled','disabled');
+		node3.setAttribute('disabled','disabled');
+	}
+	else
+	{
+		object.value = 'active';
+		node1.removeAttribute('disabled');
+		node2.removeAttribute('disabled');
+		node3.removeAttribute('disabled');
+	}
+}
+
 function getNextValue()
 {
 	var value =	values[values.length] = 'v' + (values.length + 1);
@@ -232,7 +249,6 @@ function getNextValue()
 function getAvailableValues()
 {
 	var value = '';
-	value += '<select class="values">';
 	value += '<option value="">select a value</option>';
 	
 	for(var i in values)
@@ -240,76 +256,64 @@ function getAvailableValues()
 		value += '<option value="' + values[i] + '">' + values[i] + '</option>';			
 	}
 	
-	value += '</select>';
 	return value;
 }
 
-function deleteRule(object)
+function deleteFact(object)
 {
 	//get a reference to the enclosing <TR> element
 	var row = object.parentNode.parentNode;
-	
-	//remove row
-	row.parentNode.removeChild(row);
-}
 
-function deleteStatement(object)
-{
-	//get a reference to the enclosing <TR> element
-	var row = object.parentNode.parentNode;
+	//get the row ordinal number
+	var rowID = Number(row.firstChild.innerHTML.substring(1));
 	
-	//remove row
+	//remove row from facts
 	row.parentNode.removeChild(row);
+
+	//get a reference to the rules table
+	var rules=document.getElementById('rules');
+	
+	//remove row from rules
+	rules.deleteRow(rowID);
 	
 	//get a reference to the table
-	var data=document.getElementById('statements');
-	
-	if(data===null)
-	{
-		return;
-	}
+	var facts=document.getElementById('facts');
 	
 	//reset values
 	values = [];
 	
 	//find table size
-	var rows = data.rows.length;
+	var rows = facts.rows.length;
 	
-	//traverse the table and modify the cell content as appropriate
+	//traverse the tables and modify the cell content as appropriate
 	for(var i = 1; i < rows; i++)
 	{
-		var row = data.rows[i];
+		//facts table
+		var row = facts.rows[i];
 		var cell2 = row.cells[2];
 		if (cell2.firstChild.getAttribute('class') === 'values')
 		{
-			cell2.innerHTML = getAvailableValues();
+			cell2.innerHTML = '<select class="values">' + getAvailableValues() + '</select>';
 		}
 		var cell0 = row.cells[0];
 		cell0.innerHTML = getNextValue();
-	}
-	
-	//get a reference to the rules table
-	var rules=document.getElementById('rules');
-	
-	if(rules===null)
-	{
-		return;
-	}
-	
-	while(rules.rows.length > 1)
-	{
-		rules.deleteRow(-1);
-	}
+
+		//rules table
+		row = rules.rows[i];
+		cell0 = row.cells[0].innerHTML = '<select class="values">' + getAvailableValues() + '</select>';
+		cell1 = row.cells[1].firstChild.options[0].selected = 'selected';
+		cell2 = row.cells[2].innerHTML = '<select class="values">' + getAvailableValues() + '<option value="[]">empty</option></select>';
+	}	
 }
 
 function validateRule(rule)
 {
-	//get a reference to the statements table
-	var statements=document.getElementById('statements');
+	//get a reference to the facts table
+	var facts=document.getElementById('facts');
 	
-	if(statements === null)
+	if(facts === null)
 	{
-		alert('Serious error occured: there is no statements table.');
+		alert('Serious error occured: there is no facts table.');
 		return false;
 	}
 	
@@ -322,28 +326,28 @@ function validateRule(rule)
 		return;
 	}
 	
-	var statementsLength = statements.rows.length;
+	var factsLength = facts.rows.length;
 	
-	if(statementsLength < 3)
+	if(factsLength < 2)
 	{
-		alert('There must be at least 2 statements in the definition.');
+		alert('There must be at least 1 facts/rule in the definition.');
 		return false;
 	}
 	
-	var rulesLength = rules.rows.length;
+	rule.name = document.getElementById('ruleID').value;
 
-	if(rulesLength < 2)
+	if(rule.name.trim() === '')
 	{
-		alert('There must be at least 1 rule in the definition.');
+		alert('There is no rule ID.');
 		return false;
 	}
-
-	rule.name = 'test'
-	rule.statements = [];
 	
-	for(var i = 1; i < statementsLength; i++)
+	rule.facts = [];
+	rule.rules = [];
+	
+	for(var i = 1; i < factsLength; i++)
 	{
-		var row = statements.rows[i];
+		var row = facts.rows[i];
 		var cell0 = row.cells[0];
 		var cell1 = row.cells[1];
 		var cell2 = row.cells[2];
@@ -354,44 +358,47 @@ function validateRule(rule)
 		
 		if(part2 === '' || part3 === '')
 		{
-			alert('Incomplete statements found.');
+			alert('Incomplete facts found.');
 			return false;
 		}
 		
-		var statement = {};
+		var fact = {};
 		var pattern = cell2.firstChild.getAttribute('class') === 'values' ? 2 : 1;
-		statement.relation = part2;
+		fact.relation = part2;
 		
 		if(pattern === 1)
 		{
-			statement.subject = part1;
-			statement.property = part3;
-			statement.select = 'subject';
+			fact.subject = part1;
+			fact.property = part3;
+			fact.select = 'subject';
 		}
 		else
 		{
-			statement.subject = part3;
-			statement.property = part1;
-			statement.select = 'property';
+			fact.subject = part3;
+			fact.property = part1;
+			fact.select = 'property';
 		}
 		
-		rule.statements.push(statement);		
-	}
-	
-	rule.rules = [];
-	
-	for(var i = 1; i < rulesLength; i++)
-	{
-		var row = rules.rows[i];
-		var cell0 = row.cells[0];
-		var cell1 = row.cells[1];
-		var cell2 = row.cells[2];
+		rule.facts.push(fact);		
 
-		var part1 = cell0.firstChild.options[cell0.firstChild.selectedIndex].value;
-		var part2 = cell1.firstChild.options[cell1.firstChild.selectedIndex].value;
-		var part3 = cell2.firstChild.options[cell2.firstChild.selectedIndex].value;
+		row = rules.rows[i];
+		cell0 = row.cells[0];
+		cell1 = row.cells[1];
+		cell2 = row.cells[2];
+		var cell3 = row.cells[3];
+
+		part1 = cell0.firstChild.options[cell0.firstChild.selectedIndex].value;
+		part2 = cell1.firstChild.options[cell1.firstChild.selectedIndex].value;
+		part3 = cell2.firstChild.options[cell2.firstChild.selectedIndex].value;
+		var state = cell3.firstChild.value;
 		
-		if(part1 === '' || part2 === '' || part3 === '')
+		if(state === 'inactive')
+		{
+			part1 = '';
+			part2 = '==';
+			part3 = '';
+		}
+		else if(part1 === '' || part2 === '' || part3 === '')
 		{
 			alert('Incomplete rules found.');
 			return false;
