@@ -56,7 +56,6 @@ $j(document).ready
 			var cell0 = row.insertCell(0);
 			var cell1 = row.insertCell(1);
 			var cell2 = row.insertCell(2);
-			var cell3 = row.insertCell(3);
 			
 			var availableValues = getAvailableValues();
 			
@@ -75,10 +74,7 @@ $j(document).ready
 			operator += '</select>';
 			
 			cell1.innerHTML = operator;	
-			cell2.innerHTML = '<select class="values">' + availableValues + '<option value="[]">empty</option></select>';	
-			
-			var stateOption = '<input type="button" value="active" onclick="changeRuleState(this)"/>';
-			cell3.innerHTML = stateOption;
+			cell2.innerHTML = '<select class="values">' + availableValues + '<option value="">empty</option></select>';				
 		}
 				
 		function insertFact(pattern)
@@ -215,31 +211,6 @@ $j(document).ready
 	}
 );
 
-function changeRuleState(object)
-{
-	var parent = object.parentNode.parentNode;
-	var node1 = parent.firstChild.firstChild;
-	var node2 = parent.firstChild.nextSibling.firstChild;
-	var node3 = parent.lastChild.previousSibling.firstChild;
-	
-	var state = object.value;
-	
-	if(state === 'active')
-	{
-		object.value = 'inactive';
-		node1.setAttribute('disabled','disabled');
-		node2.setAttribute('disabled','disabled');
-		node3.setAttribute('disabled','disabled');
-	}
-	else
-	{
-		object.value = 'active';
-		node1.removeAttribute('disabled');
-		node2.removeAttribute('disabled');
-		node3.removeAttribute('disabled');
-	}
-}
-
 function getNextValue()
 {
 	var value =	values[values.length] = 'v' + (values.length + 1);
@@ -302,7 +273,7 @@ function deleteFact(object)
 		row = rules.rows[i];
 		cell0 = row.cells[0].innerHTML = '<select class="values">' + getAvailableValues() + '</select>';
 		cell1 = row.cells[1].firstChild.options[0].selected = 'selected';
-		cell2 = row.cells[2].innerHTML = '<select class="values">' + getAvailableValues() + '<option value="[]">empty</option></select>';
+		cell2 = row.cells[2].innerHTML = '<select class="values">' + getAvailableValues() + '<option value="">empty</option></select>';
 	}	
 }
 
@@ -355,10 +326,10 @@ function validateRule(rule)
 		var part1 = cell0.innerHTML;
 		var part2 = cell1.firstChild.options[cell1.firstChild.selectedIndex].value;
 		var part3 = cell2.firstChild.options[cell2.firstChild.selectedIndex].value;
-		
-		if(part2 === '' || part3 === '')
+
+		if((part2 === '' && part3 !== '') || (part2 !== '' && part3 === ''))
 		{
-			alert('Incomplete facts found.');
+			alert('Incomplete fact found.');
 			return false;
 		}
 		
@@ -390,17 +361,24 @@ function validateRule(rule)
 		part1 = cell0.firstChild.options[cell0.firstChild.selectedIndex].value;
 		part2 = cell1.firstChild.options[cell1.firstChild.selectedIndex].value;
 		part3 = cell2.firstChild.options[cell2.firstChild.selectedIndex].value;
-		var state = cell3.firstChild.value;
 		
-		if(state === 'inactive')
+		if(part1 === '' && part2 === '' && part3 === '')
 		{
-			part1 = '';
 			part2 = '==';
-			part3 = '';
 		}
-		else if(part1 === '' || part2 === '' || part3 === '')
+		else if(part1 === '' && (part2 !== '' || part3 !== ''))
 		{
-			alert('Incomplete rules found.');
+			alert('Incomplete rule found.');
+			return false;
+		}
+		else if(part2 === '' && (part1 !== '' || part3 !== ''))
+		{
+			alert('Incomplete rule found.');
+			return false;
+		}
+		else if(part3 === '' && (part1 !== '' || part2 !== ''))
+		{
+			alert('Incomplete rule found.');
 			return false;
 		}
 		

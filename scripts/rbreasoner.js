@@ -40,8 +40,8 @@ function RBReasoner()
 		//var rule = {"name":"test","statements":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"length","subject":"v1","property":"v2","select":"property"},{"relation":"is","subject":"v3","property":"loop","select":"subject"},{"relation":"includes","subject":"v3","property":"v4","select":"property"},{"relation":"test","subject":"v3","property":"v5","select":"property"}],"rules":[{"operand1":"v1","operator":"in","operand2":"v4"},{"operand1":"v2","operator":"in","operand2":"v5"}]};
 		//this.kb.insert(rule);
 		//rule = {"name":"test1","statements":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"length","subject":"v1","property":"v2","select":"property"},{"relation":"is","subject":"v3","property":"var","select":"subject"},{"relation":"is","subject":"v4","property":"loop","select":"subject"},{"relation":"includes","subject":"v4","property":"v5","select":"property"},{"relation":"equals","subject":"v6","property":"<=","select":"subject"},{"relation":"test","subject":"v4","property":"v7","select":"property"},{"relation":"subscript","subject":"v1","property":"v8","select":"property"}],"rules":[{"operand1":"v1","operator":"in","operand2":"v5"},{"operand1":"v3","operator":"in","operand2":"v5"},{"operand1":"v2","operator":"in","operand2":"v7"},{"operand1":"v3","operator":"in","operand2":"v7"},{"operand1":"v6","operator":"in","operand2":"v7"},{"operand1":"v3","operator":"==","operand2":"v8"}]};
-		var rule = {"name":"test1","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"loop","select":"subject"},{"relation":"includes","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"test","subject":"v2","property":"v5","select":"property"},{"relation":"equals","subject":"v6","property":"<=","select":"subject"},{"relation":"is","subject":"v7","property":"var","select":"subject"},{"relation":"subscript","subject":"v1","property":"v8","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":"[]"},{"operand1":"v2","operator":"!=","operand2":"[]"},{"operand1":"v1","operator":"in","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"in","operand2":"v5"},{"operand1":"v6","operator":"in","operand2":"v5"},{"operand1":"v7","operator":"in","operand2":"v5"},{"operand1":"v7","operator":"==","operand2":"v8"}]};
-		this.kb.insert(rule);
+		//var rule = {"name":"test1","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"loop","select":"subject"},{"relation":"includes","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"test","subject":"v2","property":"v5","select":"property"},{"relation":"equals","subject":"v6","property":"<=","select":"subject"},{"relation":"is","subject":"v7","property":"var","select":"subject"},{"relation":"subscript","subject":"v1","property":"v8","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":""},{"operand1":"v2","operator":"!=","operand2":""},{"operand1":"v1","operator":"in","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"in","operand2":"v5"},{"operand1":"v6","operator":"in","operand2":"v5"},{"operand1":"v7","operator":"in","operand2":"v5"},{"operand1":"v7","operator":"==","operand2":"v8"}]};
+		var rule = {"name":"test","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"loop","select":"subject"},{"relation":"includes","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"test","subject":"v2","property":"v5","select":"property"},{"relation":"equals","subject":"v6","property":"<=","select":"subject"},{"relation":"is","subject":"v7","property":"var","select":"subject"},{"relation":"","subject":"v8","property":"","select":"subject"},{"relation":"subscript","subject":"v1","property":"v9","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":""},{"operand1":"v2","operator":"!=","operand2":""},{"operand1":"v1","operator":"in","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"in","operand2":"v5"},{"operand1":"v6","operator":"in","operand2":"v5"},{"operand1":"v7","operator":"!=","operand2":""},{"operand1":"v7","operator":"in","operand2":"v5"},{"operand1":"v9","operator":"==","operand2":"v7"}]};		this.kb.insert(rule);
 		//console.table(this.kb({'name':'test1'}));
 	}
 	
@@ -69,8 +69,11 @@ function RBReasoner()
 		(
 			function (record, recordnumber)
 			{
+				//make a copy if the rule
 				var rule = JSON.parse(JSON.stringify(record));
-				var test = checkRule(rule);
+				
+				//check if it needs activation
+				var test = checkRule(rule, 0, [], wm);
 				alert(test);
 /*			
 			
@@ -128,9 +131,103 @@ function RBReasoner()
 	}
 	
 	//checks whether a rule needs to be activated
-	this.checkRule = function(rule)
+	this.checkRule = function(rule, index, facts, wm)
 	{
-		alert(rule);
+console.error(index , rule.facts.length);
+		if(index >= rule.facts.length)
+		{
+			return true;
+		}
+		
+		console.log(1, JSON.stringify(rule.facts[index])+ ' ' + JSON.stringify(rule.rules[index]));
+		console.log(1, index, facts);
+		
+		//get the next relevant fact from the wm
+		fact = rule.facts[index];
+		var factID = '';
+
+		if(fact.select === 'subject')
+		{
+			facts[fact.subject] = wm({'relation':fact.relation},{'property':fact.property}).select(fact.select);
+			factID = fact.subject;
+		}
+		else
+		{
+			facts[fact.property] = wm({'relation':fact.relation},{'subject':facts[fact.subject]}).select(fact.select);
+			factID = fact.property;
+		}
+console.log(2, facts[factID]);
+	
+		//evaluate the corresponding subrule
+		var subrule = rule.rules[index];
+		var operand1 = subrule.operand1;
+		var operator = subrule.operator;
+		var operand2 = subrule.operand2;
+				
+		var condition = true;
+
+console.log(2.1, operand1, operator, operand2);
+		
+		if(operator === 'in')
+		{
+			condition = facts[operand2].indexOf(facts[operand1]+'') > -1;
+		}
+		else
+		{
+			if(operand2 === '')
+			{
+				if(operand1 === '' || facts[operand1] === '')
+				{
+					condition = eval('""' + operator +  '""');
+				}
+				else
+				{
+					condition = eval('"' + facts[operand1] + '"' + operator + '""');
+				}
+			}
+			else
+			{
+console.log(3, facts[operand1], operator, facts[operand2]);
+				condition = eval('"' + facts[operand1] + '"' + operator + '"' + facts[operand2] + '"');
+			}
+		}
+console.log(4, condition);		
+		if(condition === false)
+		{
+			return false;
+		}
+		
+		if(facts[factID].toString() === '')
+		{
+console.log(5, facts[factID]);					
+			if(arguments.callee(rule, index + 1, facts, wm) === true)
+			{
+				return true;
+			}		
+		}
+
+		if(fact.select === 'subject')
+		{
+			var factValues = facts[factID].slice(0);
+			
+			for(var factValue in factValues)
+			{
+				facts[factID] = factValues[factValue];
+console.log(5, facts[factID]);					
+				if(arguments.callee(rule, index + 1, facts, wm) === true)
+				{
+					return true;
+				}
+			}
+		}
+		else
+		{
+			if(arguments.callee(rule, index + 1, facts, wm) === true)
+			{
+				return true;
+			}		
+		}
+		
 		return false;
 	}
 	
