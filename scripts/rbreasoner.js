@@ -1,5 +1,5 @@
 var reasoner = new RBReasoner();
-reasoner.init();
+reasoner.init(editor);
 
 //definition for RB Reasoner
 //============================================================
@@ -14,6 +14,7 @@ function RBReasoner()
 	this.wm = null;							//working memory
 	this.kb = null;							//knowledge base
 	this.agenda = null;						//activated rules
+	this.editor = null;						//hold a ref to the editor
 
 	//initialisation function - executed only once
 	(
@@ -29,9 +30,10 @@ function RBReasoner()
 	//========================================================
 
 	//further initialisation initiated by the user
-	this.init = function()
+	this.init = function(editor)
 	{
 		this.loadKB();				//load kb with rules
+		this.editor = editor;		//init editor
 	}
 	
 	//load kb with rules
@@ -41,7 +43,8 @@ function RBReasoner()
 		//this.kb.insert(rule);
 		//rule = {"name":"test1","statements":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"length","subject":"v1","property":"v2","select":"property"},{"relation":"is","subject":"v3","property":"var","select":"subject"},{"relation":"is","subject":"v4","property":"loop","select":"subject"},{"relation":"includes","subject":"v4","property":"v5","select":"property"},{"relation":"equals","subject":"v6","property":"<=","select":"subject"},{"relation":"test","subject":"v4","property":"v7","select":"property"},{"relation":"subscript","subject":"v1","property":"v8","select":"property"}],"rules":[{"operand1":"v1","operator":"in","operand2":"v5"},{"operand1":"v3","operator":"in","operand2":"v5"},{"operand1":"v2","operator":"in","operand2":"v7"},{"operand1":"v3","operator":"in","operand2":"v7"},{"operand1":"v6","operator":"in","operand2":"v7"},{"operand1":"v3","operator":"==","operand2":"v8"}]};
 		//var rule = {"name":"test1","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"loop","select":"subject"},{"relation":"includes","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"test","subject":"v2","property":"v5","select":"property"},{"relation":"equals","subject":"v6","property":"<=","select":"subject"},{"relation":"is","subject":"v7","property":"var","select":"subject"},{"relation":"subscript","subject":"v1","property":"v8","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":""},{"operand1":"v2","operator":"!=","operand2":""},{"operand1":"v1","operator":"in","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"in","operand2":"v5"},{"operand1":"v6","operator":"in","operand2":"v5"},{"operand1":"v7","operator":"in","operand2":"v5"},{"operand1":"v7","operator":"==","operand2":"v8"}]};
-		var rule = {"name":"test","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"loop","select":"subject"},{"relation":"includes","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"test","subject":"v2","property":"v5","select":"property"},{"relation":"equals","subject":"v6","property":"<=","select":"subject"},{"relation":"is","subject":"v7","property":"var","select":"subject"},{"relation":"","subject":"v8","property":"","select":"subject"},{"relation":"subscript","subject":"v1","property":"v9","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":""},{"operand1":"v2","operator":"!=","operand2":""},{"operand1":"v1","operator":"in","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"in","operand2":"v5"},{"operand1":"v6","operator":"in","operand2":"v5"},{"operand1":"v7","operator":"!=","operand2":""},{"operand1":"v7","operator":"in","operand2":"v5"},{"operand1":"v9","operator":"==","operand2":"v7"}]};		this.kb.insert(rule);
+		var rule = {"name":"test","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"loop","select":"subject"},{"relation":"includes","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"test","subject":"v2","property":"v5","select":"property"},{"relation":"equals","subject":"v6","property":"<=","select":"subject"},{"relation":"is","subject":"v7","property":"var","select":"subject"},{"relation":"","subject":"v8","property":"","select":"subject"},{"relation":"subscript","subject":"v1","property":"v9","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":""},{"operand1":"v2","operator":"!=","operand2":""},{"operand1":"v1","operator":"in","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"in","operand2":"v5"},{"operand1":"v6","operator":"in","operand2":"v5"},{"operand1":"v7","operator":"!=","operand2":""},{"operand1":"v7","operator":"in","operand2":"v5"},{"operand1":"v9","operator":"==","operand2":"v7"}],"refactoring":[{"old":"v6","new":"<","location":{"start":{"line":5,"column":16},"end":{"line":5,"column":22}}}]};
+		this.kb.insert(rule);
 		//console.table(this.kb({'name':'test1'}));
 	}
 	
@@ -69,69 +72,52 @@ function RBReasoner()
 		(
 			function (record, recordnumber)
 			{
-				//make a copy if the rule
+				//make a copy of the rule
 				var rule = JSON.parse(JSON.stringify(record));
 				
 				//check if it needs activation
-				var test = checkRule(rule, 0, [], wm);
-				alert(test);
-/*			
-			
+				var facts = [];
+				var locations = [];
+				var test = checkRule(rule, 0, facts, wm, locations);
+console.log(test);
+
 				var ruleName = record.name;
 				var statements = record.statements;
+				var refactoring = record.refactoring;
 				var rules = record.rules;
 
-				var facts = [];
-
-				//declare the facts
-				for(stm in statements)
-				{
-					stm = statements[stm];
-
-					if(stm.select === 'subject')
-					{
-						facts[facts.length] = wm({'relation':stm.relation},{'property':stm.property}).select(stm.select);
-					}
-					else
-					{
-						facts[facts.length] = wm({'relation':stm.relation},{'subject':facts[stm.subject.substring(1) - 1]}).select(stm.select);
-					}
-				}
-			
-				var condition = true;
-
-				//check the rules
-				for(rule in rules)
-				{
-					rule = rules[rule];
-					var operand1 = rule.operand1.substring(1) - 1;
-					var operand2 = rule.operand2.substring(1) - 1;
-
-					if(rule.operator === 'in')
-					{
-						condition = condition && facts[operand2].indexOf(facts[operand1]+'') > -1;
-					}
-					else
-					{
-						condition = condition && eval(facts[operand1] + rule.operator + facts[operand2]);
-					}
-				}
-
-				if(condition === true)
+				if(test === true)
 				{
 					var activeRule = {};
+					activeRule.name = 'test3';
+					activeRule.facts = facts;
+					activeRule.locations = locations;
+					activeRule.factCount = 23;
+					activeRule.refactoring = refactoring;					
+					agenda.insert(activeRule);
+
+					var activeRule = {};
 					activeRule.name = ruleName;
-					activeRule.factCount = facts.length;
+					activeRule.facts = facts;
+					activeRule.locations = locations;
+					activeRule.factCount = Object.keys(facts).length;
+					activeRule.refactoring = refactoring;					
+					agenda.insert(activeRule);
+
+					var activeRule = {};
+					activeRule.name = 'test2';
+					activeRule.facts = facts;
+					activeRule.locations = locations;
+					activeRule.factCount = 15;
+					activeRule.refactoring = refactoring;					
 					agenda.insert(activeRule);
 				}
-//				alert(record['name'] + ' ' + recordnumber);
-*/
 			}
 		);
 	}
 	
 	//checks whether a rule needs to be activated
-	this.checkRule = function(rule, index, facts, wm)
+	this.checkRule = function(rule, index, facts, wm, locations)
 	{
 console.error(index , rule.facts.length);
 		if(index >= rule.facts.length)
@@ -200,7 +186,7 @@ console.log(4, condition);
 		if(facts[factID].toString() === '')
 		{
 console.log(5, facts[factID]);					
-			if(arguments.callee(rule, index + 1, facts, wm) === true)
+			if(arguments.callee(rule, index + 1, facts, wm, locations) === true)
 			{
 				return true;
 			}		
@@ -213,8 +199,9 @@ console.log(5, facts[factID]);
 			for(var factValue in factValues)
 			{
 				facts[factID] = factValues[factValue];
+				locations[factID] = wm({'relation':fact.relation},{'property':fact.property},{'subject':factValues[factValue]}).select('location');
 console.log(5, facts[factID]);					
-				if(arguments.callee(rule, index + 1, facts, wm) === true)
+				if(arguments.callee(rule, index + 1, facts, wm, locations) === true)
 				{
 					return true;
 				}
@@ -222,7 +209,7 @@ console.log(5, facts[factID]);
 		}
 		else
 		{
-			if(arguments.callee(rule, index + 1, facts, wm) === true)
+			if(arguments.callee(rule, index + 1, facts, wm, locations) === true)
 			{
 				return true;
 			}		
@@ -232,19 +219,74 @@ console.log(5, facts[factID]);
 	}
 	
 	//analyses code, identifies misconceptions and decides on how to support the student
-	this.getSupport = function(code)
+	this.getSupport = function()
 	{
+		//get highlighted text
+		var code=this.editor.getCopyText();
+
+		if(code === '')
+		{
+			//get code that is not highlighted
+			code=this.editor.getSession().getValue();
+		}
+	
 		//use esprima to get the AST
 		var ast = this.getAST(code, true, true, true, true);
 		
 		//get the facts
 		this.getFacts(ast);
-
+this.displayFacts();
 		//activate rules
 		this.activateRules();
 		
-		//check agenda to see if there are active rules
-		alert(this.agenda().count());
+		//fire a rule in the agenda
+		this.fireRule();
+	}
+	
+	this.fireRule =  function()
+	{		
+		//find the lowest number of facts in the set
+		var factCount = this.agenda().min('factCount');
+		
+		//select rule with the lowest number of facts
+		var rule = this.agenda({'factCount':factCount}).get()[0];
+		
+		//refactor the code
+		var facts = rule.facts;
+		var refactoring = rule.refactoring;
+		
+		for(var action in refactoring)
+		{
+			action = refactoring[action];
+			var oldValue = facts[action.old];
+			var newValue = action.new;
+			var location = action.location;
+			var start = location.start;
+			var end = location.end;
+
+			//set the range that contains the token		
+			var range = new Range(start.line - 1, start.column, end.line - 1, end.column);
+
+			//set up the search options
+			var options = {};
+			options.needle = oldValue;
+			options.wrap = false;
+			options.range = range;
+			
+			//set up the search object
+			var search = new Search();
+			search.set(options);		
+
+			//run the search and get the new range
+			range = search.find(editor.getSession());
+
+			//use the new range to select the token that is found
+			var selection = editor.getSelection();
+			selection.setSelectionRange(range);
+
+			//replace token with new value
+			editor.session.replace(range, newValue);		
+		}
 	}
 	
 	//parses code and generates abstract syntax tree (AST)
@@ -281,6 +323,7 @@ console.log(5, facts[factID]);
 		var subject = null;
 		var relation = null;
 		var property = null;
+		var location = JSON.stringify(ast.loc);
 
 		switch(ast.type.toLowerCase())
 		{
@@ -322,7 +365,7 @@ console.log(5, facts[factID]);
 							property  =  'var';
 						}
 
-						record = new Fact(subject, relation, property);
+						record = new Fact(subject, relation, property, location);
 						this.wm.insert(record);
 												
 						if(property === 'array')
@@ -332,7 +375,7 @@ console.log(5, facts[factID]);
 							if(ast.init.elements !== null)
 							{
 								property = ast.init.elements.length;
-								record = new Fact(subject, relation, property);
+								record = new Fact(subject, relation, property, location);
 								this.wm.insert(record);
 							}					
 						}
@@ -342,17 +385,26 @@ console.log(5, facts[factID]);
 							property = subject;
 							subject = arguments[1];
 							relation = arguments[2];
-							record = new Fact(subject, relation, property);
+							record = new Fact(subject, relation, property, location);
 							this.wm.insert(record);
 						}
 					}
 				}
 				break;
 			case 'forstatement':
-				subject = 'f';
+				var loops = this.wm({'relation':'is'},{'property':'loop'}).select('subject');
+				
+				if(loops.toString() === '')
+				{
+					subject = 'f1';
+				}
+				else
+				{
+					subject = 'f' + (Number(loops.toString().substring(1)) + 1);
+				}
 				relation = 'is';
 				property = 'loop';
-				record = new Fact(subject, relation, property);
+				record = new Fact(subject, relation, property, location);
 				this.wm.insert(record);
 				this.getFacts(ast.init, subject, 'init');
 				this.getFacts(ast.test, subject, 'test');
@@ -363,14 +415,14 @@ console.log(5, facts[factID]);
 				subject = ast.operator;
 				relation = 'equals';
 				property = ast.operator;
-				record = new Fact(subject, relation, property);
+				record = new Fact(subject, relation, property, location);
 				this.wm.insert(record);
 				if(arguments.length === 3)
 				{
 					subject = arguments[1];
 					relation = arguments[2];
 					property = ast.operator;
-					record = new Fact(subject, relation, property);
+					record = new Fact(subject, relation, property, location);
 					this.wm.insert(record);
 					this.getFacts(ast.left, arguments[1], arguments[2]);
 					this.getFacts(ast.right, arguments[1], arguments[2]);
@@ -399,7 +451,7 @@ console.log(5, facts[factID]);
 					subject = ast.object.name;
 					relation = 'subscript';
 					property = ast.property.name;
-					record = new Fact(subject, relation, property);
+					record = new Fact(subject, relation, property, location);
 					this.wm.insert(record);				
 				}
 				if(arguments.length === 3)
@@ -418,7 +470,7 @@ console.log(5, facts[factID]);
 					subject = arguments[1];
 					relation = arguments[2];
 					property = ast.name;
-					record = new Fact(subject, relation, property);
+					record = new Fact(subject, relation, property, location);
 					this.wm.insert(record);
 				}
 				break;
@@ -428,7 +480,7 @@ console.log(5, facts[factID]);
 					subject = arguments[1];
 					relation = arguments[2];
 					property = ast.raw;
-					record = new Fact(subject, relation, property);
+					record = new Fact(subject, relation, property, location);
 					this.wm.insert(record);
 				}
 				break;
@@ -467,4 +519,16 @@ console.log(5, facts[factID]);
 			default:
 		}	
 	}
+}
+
+//definition for Fact
+//============================================================
+	
+//constructor
+function Fact(subject, relation, property, location)
+{
+	this.subject = subject;
+	this.relation = relation;
+	this.property = property;
+	this.location = location;
 }

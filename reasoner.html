@@ -3,10 +3,17 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
   <title>reasoner</title>
-
+  
+<style type="text/css" media="screen">
+#editor
+{ 
+	width: 800px;
+	height: 600px;
+}
+</style>
+ 
 	<script language="javascript" type="text/javascript" src="./scripts/esprima.js"></script>
 	<script language="javascript" type="text/javascript" src="./scripts/taffy.js"></script>
-	<script language="javascript" type="text/javascript" src="./scripts/rbreasoner.js"></script>
 	<script>
 
 	var facts = TAFFY();
@@ -338,18 +345,47 @@
 		console.log(rule[4].indexOf(rule[1].toString())>-1);
 	}
 	
-	function Fact(subject, relation, property)
-	{
-		this.subject = subject;
-		this.relation = relation;
-		this.property = property;
-	}
-	
 	function getSupport()
 	{
-		var editor=document.getElementById("editor");
-		var code=editor.value;
-		reasoner.getSupport(code);
+	var s = new Search();
+		reasoner.getSupport();
+		
+	}
+	
+	function refact()
+	{
+		//change references to constructors
+		var Search = ace.require('ace/search').Search;
+		var Range = ace.require('ace/range').Range;
+
+		//set the range that contains the token
+		var range = new Range(4,16,4,22);
+
+		//set the search options
+		var options = {};
+		options.needle = '<=';
+		options.wrap = false;
+		options.range = range;
+		
+		//set up the search object
+		var search = new Search();
+		search.set(options);		
+
+		//run the search and get the new range
+		range = search.find(editor.getSession());
+
+		//use the new range to select the token found
+		var selection = editor.getSelection();
+		selection.setSelectionRange(range);
+		console.log(selection);
+		
+		//ask user
+		var confirmation = confirm('change ' + editor.session.getTextRange(range) + ' with ' + '<' + '?');
+		
+		if(confirmation === true)
+		{
+			editor.session.replace(range, "<");
+		}
 	}
  </script>
 </head>
@@ -360,8 +396,9 @@ Please open your javascript console to see test results
 	<h1>Reasoner</h1>
 	<input id="do" type="button" onclick="getSupport()" value="Get Support"/>
 	<input id="do1" type="button" onclick="analyse()" value="analyse"/>
+	<input id="do2" type="button" onclick="refact()" value="refact"/>
 	<hr/>
-	<textarea id="editor" rows="40" cols="100">
+<div id="editor">
 var x = [2,5,1,8,9];
 var y = [1,2];
 
@@ -372,6 +409,27 @@ for (var i = 0; i <= 5; i++)
 }
 
 alert(sum);
-	</textarea> 
+</div> 
+
+<script src="src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/eclipse");
+    editor.getSession().setMode("ace/mode/javascript");
+			//change references to ace constructors
+		var Search = ace.require('ace/search').Search;
+		var Range = ace.require('ace/range').Range;
+
+</script>
+<script language="javascript" type="text/javascript" src="./scripts/rbreasoner.js"></script>
+
+<script>
+	function getSupport()
+	{
+//	var s = new Search();
+		reasoner.getSupport();
+		
+	}
+ </script>
 </body>
 </html>
