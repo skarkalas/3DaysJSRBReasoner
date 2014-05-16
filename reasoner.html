@@ -37,8 +37,8 @@
 */	
 	function analyse()
 	{
-		var editor=document.getElementById("editor");
-		var code=editor.value;
+		//var editor=document.getElementById("editor");
+		var code=editor.getSession().getValue();
 		var options={};
 		options.loc=true;
 		options.range=true;

@@ -4,6 +4,12 @@ fieldset, span
 	font-size:12px;
 }
 
+textarea
+{
+	width: 100%;
+	height: 100%;
+}
+
 legend
 {
 	display: block;
@@ -17,7 +23,12 @@ legend
 select, input
 {
 	width: 100%;
-	text-align:center
+	text-align:center;
+}
+
+select
+{
+	height: 25px;
 }
 
 .data {

@@ -7,7 +7,10 @@ $j(document).ready
 	{
 		var pattern1 = $j("#pattern1").button();
 		var pattern2 = $j("#pattern2").button();
+		var new_reference = $j("#new_reference").button();
+		var new_refactoring = $j("#new_refactoring").button();
 		var submit = $j("#submit").button();
+		var json = $j("#json").button();
 		var exit = $j("#exit").button();
 		
 		pattern1.click
@@ -26,6 +29,22 @@ $j(document).ready
 			}
 		);
 
+		new_reference.click
+		(
+			function()
+			{
+				insertReference();
+			}
+		);
+
+		new_refactoring.click
+		(
+			function()
+			{
+				insertRefactoring();
+			}
+		);
+
 		submit.click
 		(
 			function()
@@ -35,18 +54,97 @@ $j(document).ready
 				
 				if(valid === false)
 				{
+					alert('The rule is not valid and cannot be submitted');
+					return;
+				}
+				
+				//$j('#area').val(JSON.stringify(rule));
+			}
+		);
+
+		json.click
+		(
+			function()
+			{
+				var rule = {};
+				var valid = validateRule(rule);
+				
+				if(valid === false)
+				{
+					alert('The rule is not valid and json string cannot be generated');
 					return;
 				}
 				
 				$j('#area').val(JSON.stringify(rule));
 			}
-		);		
+		);
+		
+		function insertReference()
+		{
+			var reference = document.getElementById('references');
+
+			if(reference === null)
+			{
+				return;
+			}
+
+			//append a new row
+			var row = reference.insertRow(-1);
+			var cell0 = row.insertCell(0);
+			var cell1 = row.insertCell(1);
+			var cell2 = row.insertCell(2);
+
+			cell0.innerHTML = '<input type="text" value=""/>';
+			cell1.innerHTML = '<input type="text" value=""/>';
+			var deleteOption = '<input type="button" value="delete" onclick="deleteRow(this)"/>';
+			cell2.innerHTML = deleteOption;
+		}
+		
+		function insertRefactoring()
+		{
+			var refactoring = document.getElementById('refactoring');
+
+			if(refactoring === null)
+			{
+				return;
+			}
+			
+			var facts = document.getElementById('facts');
+			var factsLength = facts.rows.length;
+	
+			if(factsLength < 2)
+			{
+				alert('There must be at least 1 facts/rule in the definition.');
+				return;
+			}
+			
+			//append a new row
+			var row = refactoring.insertRow(-1);
+			var cell0 = row.insertCell(0);
+			var cell1 = row.insertCell(1);
+			var cell2 = row.insertCell(2);
+
+			var availableValues = getAvailableValues();
+
+			cell0.innerHTML = '<select class="values">' + availableValues + '</select>';
+			
+			availableValues += '<option value="==">==</option>';
+			availableValues += '<option value="!=">!=</option>';
+			availableValues += '<option value=">">&gt</option>';
+			availableValues += '<option value=">=">&gt=</option>';
+			availableValues += '<option value="<">&lt</option>';
+			availableValues += '<option value="<=">&lt=</option>';
+
+			cell1.innerHTML = '<select class="values">' + availableValues + '</select>';
+			var deleteOption = '<input type="button" value="delete" onclick="deleteRow(this)"/>';
+			cell2.innerHTML = deleteOption;
+		}
 		
 		function insertRule()
 		{
-			var rules=document.getElementById('rules');
+			var rules = document.getElementById('rules');
 			
-			if(rules===null)
+			if(rules === null)
 			{
 				return;
 			}
@@ -74,7 +172,7 @@ $j(document).ready
 			operator += '</select>';
 			
 			cell1.innerHTML = operator;	
-			cell2.innerHTML = '<select class="values">' + availableValues + '<option value="">empty</option></select>';				
+			cell2.innerHTML = '<select class="values">' + availableValues + '<option value=" ">empty</option></select>';				
 		}
 				
 		function insertFact(pattern)
@@ -230,6 +328,15 @@ function getAvailableValues()
 	return value;
 }
 
+function deleteRow(object)
+{
+	//get a reference to the enclosing <TR> element
+	var row = object.parentNode.parentNode;
+	
+	//remove row from facts
+	row.parentNode.removeChild(row);
+}
+
 function deleteFact(object)
 {
 	//get a reference to the enclosing <TR> element
@@ -247,9 +354,9 @@ function deleteFact(object)
 	//remove row from rules
 	rules.deleteRow(rowID);
 	
-	//get a reference to the table
+	//get a reference to the facts table
 	var facts=document.getElementById('facts');
-	
+		
 	//reset values
 	values = [];
 	
@@ -271,10 +378,32 @@ function deleteFact(object)
 
 		//rules table
 		row = rules.rows[i];
-		cell0 = row.cells[0].innerHTML = '<select class="values">' + getAvailableValues() + '</select>';
-		cell1 = row.cells[1].firstChild.options[0].selected = 'selected';
-		cell2 = row.cells[2].innerHTML = '<select class="values">' + getAvailableValues() + '<option value="">empty</option></select>';
-	}	
+		row.cells[0].innerHTML = '<select class="values">' + getAvailableValues() + '</select>';
+		row.cells[1].firstChild.options[0].selected = 'selected';
+		row.cells[2].innerHTML = '<select class="values">' + getAvailableValues() + '<option value="">empty</option></select>';
+	}
+	
+	//get a reference to the refactoring table
+	var refactoring=document.getElementById('refactoring');
+
+	//get available values
+	var availableValues = getAvailableValues();	
+	availableValues += '<option value="==">==</option>';
+	availableValues += '<option value="!=">!=</option>';
+	availableValues += '<option value=">">&gt</option>';
+	availableValues += '<option value=">=">&gt=</option>';
+	availableValues += '<option value="<">&lt</option>';
+	availableValues += '<option value="<=">&lt=</option>';
+
+	//find table size
+	var rows = refactoring.rows.length;
+
+	for(var i = 1; i < rows; i++)
+	{
+		var row = refactoring.rows[i];
+		row.cells[0].innerHTML = '<select class="values">' + getAvailableValues() + '</select>';	
+		row.cells[1].innerHTML = '<select class="values">' + availableValues + '</select>';
+	}
 }
 
 function validateRule(rule)
@@ -356,7 +485,6 @@ function validateRule(rule)
 		cell0 = row.cells[0];
 		cell1 = row.cells[1];
 		cell2 = row.cells[2];
-		var cell3 = row.cells[3];
 
 		part1 = cell0.firstChild.options[cell0.firstChild.selectedIndex].value;
 		part2 = cell1.firstChild.options[cell1.firstChild.selectedIndex].value;
@@ -390,6 +518,48 @@ function validateRule(rule)
 		rule.rules.push(subrule);
 	}
 	
+	//get a reference to the references table
+	var references = document.getElementById('references');
+	rule.references = [];
+
+	if(references !== null)
+	{
+		var referencesLength = references.rows.length;
+
+		for(var i = 1; i < referencesLength; i++)
+		{
+			var row = references.rows[i];
+			var cell0 = row.cells[0];
+			var cell1 = row.cells[1];
+
+			var reference = {};
+			reference.name = cell0.firstChild.value;
+			reference.link = cell1.firstChild.value;
+			rule.references.push(reference);
+		}
+	}
+	
+	//get a reference to the refactoring table
+	var refactoring = document.getElementById('refactoring');
+	rule.refactoring = [];
+
+	if(refactoring !== null)
+	{
+		var refactoringLength = refactoring.rows.length;
+
+		for(var i = 1; i < refactoringLength; i++)
+		{
+			var row = refactoring.rows[i];
+			var cell0 = row.cells[0];
+			var cell1 = row.cells[1];
+
+			var refactoringPart = {};
+			refactoringPart.old = cell0.firstChild.options[cell0.firstChild.selectedIndex].value;
+			refactoringPart.new = cell1.firstChild.options[cell1.firstChild.selectedIndex].value;
+			rule.refactoring.push(refactoringPart);
+		}
+	}
+
 	return true;
 }
 

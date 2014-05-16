@@ -15,7 +15,10 @@
 
 	<div id="dialog-form" title="Rule Editor">
 		<form>
-		<table id='buttons'>
+		<table style='width:100%'>
+		<tr>
+		<td style='vertical-align:top;width:50%'>
+		<table id='buttons' style='width:100%'>
 		<tbody>
 		<tr>
 			<td>
@@ -30,7 +33,7 @@
 		</tr>
 		<tr>
 			<td>
-				<span style='font-size:18px;'>Insert:</span>
+				<span style='font-size:18px;'>Fact =&gt Rule:</span>
 			</td>
 			<td>
 				<input type='button' id="pattern1" value='subject &lt- property'></input>
@@ -40,11 +43,22 @@
 			</td>
 		</tr>
 		<tr>
+			<td>
+				<span style='font-size:18px;'>Consequent:</span>
+			</td>
+			<td>
+				<input type='button' id="new_reference" value='Reference'></input>
+			</td>
+			<td>
+				<input type='button' id="new_refactoring" value='Refactoring'></input>
+			</td>
+		</tr>
+		<tr>
 		<td colspan='3'><hr/></td>
 		</tr>
 		<tr>
 			<td>
-				<span style='font-size:18px;'></span>
+				<input type='button' id="json" value='JSON'></input>
 			</td>
 			<td>
 				<input type='button' id="exit" value='Exit'></input>
@@ -57,7 +71,12 @@
 		<tfoot>
 		</tfoot>
 		</table>
-		
+		</td>
+		<td style='height:100%'>
+			<textarea id='area'></textarea>	
+		</td>
+		</tr>
+		<table>
 		<table style='width:100%'>
 		<tr>
 		<td style='vertical-align:top;width:50%'>
@@ -104,9 +123,50 @@
 		</fieldset>
 		</td>
 		</tr>
+		<tr>
+		<td style='vertical-align:top;width:50%'>
+		<fieldset>
+			<legend>References</legend>
+			<table id='references' class='data'>
+			<thead>
+			<tr>
+				<td style='width:25%'>
+					<span>name</span>
+				</td>
+				<td>
+					<span>link</span>
+				</td>
+				<td style='width:15%'>
+					<span>delete</span>
+				</td>
+			</tr>
+			</thead>
+			<tbody>
+			</tbody>
+			</table>
+		</fieldset>
+		</td>
+		<td style='vertical-align:top'>
+		<fieldset>
+			<legend>Refactoring</legend>
+			<table id='refactoring' class='data'>
+			<tr>
+				<td style='width:42%'>
+					<span>old value</span>
+				</td>
+				<td>
+					<span>new value</span>
+				</td>
+				<td style='width:15%'>
+					<span>delete</span>
+				</td>
+			</tr>
+			</table>
+		</fieldset>
+		</td>
+		</tr>
 		</table>
 		</form>
 	</div>
-	<textarea id='area' style='width:500px;height:400px'></textarea>
 </body>
 </html>
