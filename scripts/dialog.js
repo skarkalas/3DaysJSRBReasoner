@@ -169,6 +169,7 @@ $j(document).ready
 			operator += '<option value="<">&lt</option>';
 			operator += '<option value="<=">&lt=</option>';
 			operator += '<option value="in">in</option>';
+			operator += '<option value="intersects">intersects</option>';
 			operator += '</select>';
 			
 			cell1.innerHTML = operator;	
@@ -207,6 +208,7 @@ $j(document).ready
 			relation += '<option value="includes">includes</option>';
 			relation += '<option value="equals">equals</option>';
 			relation += '<option value="length">length</option>';
+			relation += '<option value="location">location</option>';
 			relation += '<option value="init">init</option>';
 			relation += '<option value="test">test</option>';
 			relation += '<option value="update">update</option>';
@@ -219,6 +221,7 @@ $j(document).ready
 			property += '<option value="var">var</option>';
 			property += '<option value="array">array</option>';
 			property += '<option value="loop">loop</option>';
+			property += '<option value="block">block</option>';
 			property += '<option value="==">==</option>';
 			property += '<option value="!=">!=</option>';
 			property += '<option value=">">&gt</option>';
