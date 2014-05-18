@@ -123,21 +123,24 @@ $j(document).ready
 			var cell0 = row.insertCell(0);
 			var cell1 = row.insertCell(1);
 			var cell2 = row.insertCell(2);
+			var cell3 = row.insertCell(3);
 
 			var availableValues = getAvailableValues();
 
 			cell0.innerHTML = '<select class="values">' + availableValues + '</select>';
 			
-			availableValues += '<option value="==">==</option>';
-			availableValues += '<option value="!=">!=</option>';
-			availableValues += '<option value=">">&gt</option>';
-			availableValues += '<option value=">=">&gt=</option>';
-			availableValues += '<option value="<">&lt</option>';
-			availableValues += '<option value="<=">&lt=</option>';
+			var operation = '<select class="values">';
+			operation += '<option value="replace">replace</option>';
+			operation += '<option value="before">before</option>';
+			operation += '<option value="after">after</option>';
+			operation += '<option value="swap">swap</option>';
+			operation += '</select>';
 
-			cell1.innerHTML = '<select class="values">' + availableValues + '</select>';
+			cell1.innerHTML = operation;
+
+			cell2.innerHTML = '<select class="values">' + availableValues + '</select>';
 			var deleteOption = '<input type="button" value="delete" onclick="deleteRow(this)"/>';
-			cell2.innerHTML = deleteOption;
+			cell3.innerHTML = deleteOption;
 		}
 		
 		function insertRule()
@@ -169,7 +172,9 @@ $j(document).ready
 			operator += '<option value="<">&lt</option>';
 			operator += '<option value="<=">&lt=</option>';
 			operator += '<option value="in">in</option>';
-			operator += '<option value="intersects">intersects</option>';
+			operator += '<option value="not in">not in</option>';
+			operator += '<option value="contains">contains</option>';
+			operator += '<option value="not contains">not contains</option>';
 			operator += '</select>';
 			
 			cell1.innerHTML = operator;	
@@ -206,6 +211,7 @@ $j(document).ready
 			relation += '<option value="" selected>select a relation</option>';
 			relation += '<option value="is">is</option>';
 			relation += '<option value="includes">includes</option>';
+			relation += '<option value="relates">relates</option>';
 			relation += '<option value="equals">equals</option>';
 			relation += '<option value="length">length</option>';
 			relation += '<option value="location">location</option>';
@@ -220,7 +226,8 @@ $j(document).ready
 			property += '<option value="" selected>select a property</option>';
 			property += '<option value="var">var</option>';
 			property += '<option value="array">array</option>';
-			property += '<option value="loop">loop</option>';
+			property += '<option value="for">for</option>';
+			property += '<option value="structure">structure</option>';
 			property += '<option value="block">block</option>';
 			property += '<option value="==">==</option>';
 			property += '<option value="!=">!=</option>';
@@ -555,10 +562,12 @@ function validateRule(rule)
 			var row = refactoring.rows[i];
 			var cell0 = row.cells[0];
 			var cell1 = row.cells[1];
+			var cell2 = row.cells[2];
 
 			var refactoringPart = {};
-			refactoringPart.old = cell0.firstChild.options[cell0.firstChild.selectedIndex].value;
-			refactoringPart.new = cell1.firstChild.options[cell1.firstChild.selectedIndex].value;
+			refactoringPart.left = cell0.firstChild.options[cell0.firstChild.selectedIndex].value;
+			refactoringPart.operator = cell1.firstChild.options[cell1.firstChild.selectedIndex].value;
+			refactoringPart.right = cell2.firstChild.options[cell2.firstChild.selectedIndex].value;
 			rule.refactoring.push(refactoringPart);
 		}
 	}

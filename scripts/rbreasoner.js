@@ -45,7 +45,8 @@ function RBReasoner()
 		//var rule = {"name":"test1","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"loop","select":"subject"},{"relation":"includes","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"test","subject":"v2","property":"v5","select":"property"},{"relation":"equals","subject":"v6","property":"<=","select":"subject"},{"relation":"is","subject":"v7","property":"var","select":"subject"},{"relation":"subscript","subject":"v1","property":"v8","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":""},{"operand1":"v2","operator":"!=","operand2":""},{"operand1":"v1","operator":"in","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"in","operand2":"v5"},{"operand1":"v6","operator":"in","operand2":"v5"},{"operand1":"v7","operator":"in","operand2":"v5"},{"operand1":"v7","operator":"==","operand2":"v8"}]};
 		//var rule = {"name":"test","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"loop","select":"subject"},{"relation":"includes","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"test","subject":"v2","property":"v5","select":"property"},{"relation":"equals","subject":"v6","property":"<=","select":"subject"},{"relation":"is","subject":"v7","property":"var","select":"subject"},{"relation":"","subject":"v8","property":"","select":"subject"},{"relation":"subscript","subject":"v1","property":"v9","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":""},{"operand1":"v2","operator":"!=","operand2":""},{"operand1":"v1","operator":"in","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"in","operand2":"v5"},{"operand1":"v6","operator":"in","operand2":"v5"},{"operand1":"v7","operator":"!=","operand2":""},{"operand1":"v7","operator":"in","operand2":"v5"},{"operand1":"v9","operator":"==","operand2":"v7"}],"refactoring":[{"old":"v6","new":"<","location":{"start":{"line":5,"column":16},"end":{"line":5,"column":22}}}]};
 		//var rule = {"name":"test","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"loop","select":"subject"},{"relation":"includes","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"test","subject":"v2","property":"v5","select":"property"},{"relation":"equals","subject":"v6","property":"<=","select":"subject"},{"relation":"is","subject":"v7","property":"var","select":"subject"},{"relation":"","subject":"v8","property":"","select":"subject"},{"relation":"subscript","subject":"v1","property":"v9","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"v1","operator":"in","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"in","operand2":"v5"},{"operand1":"v6","operator":"in","operand2":"v5"},{"operand1":"v7","operator":"!=","operand2":" "},{"operand1":"v7","operator":"in","operand2":"v5"},{"operand1":"v9","operator":"==","operand2":"v7"}],"references":[{"name":"lang ref","link":"www.google.com"}],"refactoring":[{"old":"v6","new":"<"}]};
-		var rule = {"name":"scope","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"},{"relation":"is","subject":"v2","property":"block","select":"subject"},{"relation":"location","subject":"v1","property":"v3","select":"property"},{"relation":"location","subject":"v2","property":"v4","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v3","operator":"intersects","operand2":"v4"}],"references":[],"refactoring":[]};
+		//var rule = {"name":"scope","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"},{"relation":"is","subject":"v2","property":"block","select":"subject"},{"relation":"location","subject":"v1","property":"v3","select":"property"},{"relation":"location","subject":"v2","property":"v4","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v3","operator":"intersects","operand2":"v4"}],"references":[],"refactoring":[]};
+		var rule = {"name":"scope","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"},{"relation":"is","subject":"v2","property":"block","select":"subject"},{"relation":"location","subject":"v1","property":"v3","select":"property"},{"relation":"location","subject":"v2","property":"v4","select":"property"},{"relation":"is","subject":"v5","property":"structure","select":"subject"},{"relation":"relates","subject":"v5","property":"v6","select":"property"},{"relation":"location","subject":"v5","property":"v7","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"contains","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v6","operator":"==","operand2":"v2"},{"operand1":"","operator":"==","operand2":""}],"references":[],"refactoring":[{"left":"v3","operator":"before","right":"v7"}]};
 		this.kb.insert(rule);
 		//console.table(this.kb({'name':'test1'}));
 	}
@@ -121,7 +122,7 @@ console.log(test);
 	//checks whether a rule needs to be activated
 	this.checkRule = function(rule, index, facts, wm, locations)
 	{
-console.error(index , rule.facts.length);
+console.info(index , rule.facts.length);
 		if(index >= rule.facts.length)
 		{
 			return true;
@@ -131,17 +132,28 @@ console.error(index , rule.facts.length);
 		console.log(1, index, facts);
 		
 		//get the next relevant fact from the wm
-		fact = rule.facts[index];
+		var fact = rule.facts[index];
 		var factID = '';
 
-		if(fact.select === 'subject')
+		if(fact.relation === '')
 		{
-			facts[fact.subject] = wm({'relation':fact.relation},{'property':fact.property}).select(fact.select);
+			if(fact.select === 'subject')
+			{
+				facts[fact.subject] = [];
+			}
+			else
+			{
+				facts[fact.property] = [];
+			}
+		}
+		else if(fact.select === 'subject')
+		{
+			facts[fact.subject] = wm({'relation':fact.relation},{'property':fact.property}).distinct(fact.select);
 			factID = fact.subject;
 		}
 		else
 		{
-			facts[fact.property] = wm({'relation':fact.relation},{'subject':facts[fact.subject]}).select(fact.select);
+			facts[fact.property] = wm({'relation':fact.relation},{'subject':facts[fact.subject]}).distinct(fact.select);
 			factID = fact.property;
 		}
 console.log(2, facts[factID]);
@@ -154,21 +166,31 @@ console.log(2, facts[factID]);
 				
 		var condition = true;
 
-console.log(2.1, operand1, operator, operand2);
-		
-		if(operator === 'in')
+console.log(2.1, facts[operand1], operator, facts[operand2]);
+
+		if(operator === 'in' || operator === 'not in')
 		{
 			condition = facts[operand2].indexOf(facts[operand1]+'') > -1;
+			
+			if(operator.search('not') !== -1)
+			{
+				condition = !condition;
+			}
 		}
-		else if(operator === 'intersects')
+		else if(operator === 'contains' || operator === 'not contains')
 		{
 			var location1 = JSON.parse(facts[operand1][0]);
 			var location2 = JSON.parse(facts[operand2][0]);
 
-			location1 = new Range(location1.start.line, location1.start.column, location1.end.line, location1.end.column);
-			location2 = new Range(location2.start.line, location2.start.column, location2.end.line, location2.end.column);
+			location1 = new Range(location1.start.line - 1, location1.start.column, location1.end.line - 1, location1.end.column);
+			location2 = new Range(location2.start.line - 1, location2.start.column, location2.end.line - 1, location2.end.column);
 
-			condition = location1.intersects(location2);			
+			condition = location1.containsRange(location2);			
+
+			if(operator.search('not') !== -1)
+			{
+				condition = !condition;
+			}
 		}	
 		else
 		{
@@ -195,25 +217,28 @@ console.log(4, condition);
 			return false;
 		}
 		
-		if(facts[factID].toString() === '')
+		if(fact.relation === '')
 		{
 console.log(5, facts[factID]);					
 			if(arguments.callee(rule, index + 1, facts, wm, locations) === true)
 			{
 				return true;
-			}		
+			}
 		}
 
-		if(fact.select === 'subject')
+		if(fact.relation === 'is')
 		{
 			var factValues = facts[factID].slice(0);
 			
 			for(var factValue in factValues)
 			{
 				facts[factID] = factValues[factValue];
+console.log(5.1, facts[factID], fact.relation,  fact.property, factValues[factValue]);		
+
 				locations[factID] = wm({'relation':fact.relation},{'property':fact.property},{'subject':factValues[factValue]}).select('location')[0];
+console.log(5.2, locations[factID]);
 				locations[factID] = JSON.parse(locations[factID]);
-console.log(5, facts[factID]);					
+console.log(5.3, facts[factID]);			
 				if(arguments.callee(rule, index + 1, facts, wm, locations) === true)
 				{
 					return true;
@@ -269,11 +294,45 @@ this.displayFacts();
 		var facts = rule.facts;
 		var locations = rule.locations;
 		var refactoring = rule.refactoring;
-		
+
 		for(var action in refactoring)
 		{
 			action = refactoring[action];
-			var oldValue = facts[action.old];
+			var left = JSON.parse(facts[action.left][0]);
+			var operator = action.operator;
+			var right = JSON.parse(facts[action.right][0]);
+			var leftStart = left.start;
+			var leftEnd = left.end;
+			var rightStart = right.start;
+			var rightEnd = right.end;
+
+			if(operator === 'before')
+			{
+				//set the range that contains the part to be moved		
+				var range = new Range(leftStart.line - 1, leftStart.column, leftEnd.line - 1, leftEnd.column);
+
+				//select the part that needs to be moved
+				var selection = editor.getSelection();
+				selection.setSelectionRange(range);
+			
+				//copy it to a variable
+				var fragment = editor.getCopyText();
+
+				//remove it from its original location
+				editor.session.replace(range, '');
+				
+				//move cursor to the new position
+				selection.moveCursorToPosition({row:rightStart.line - 1, column:rightStart.column});
+				selection.clearSelection();
+				
+				//insert the text
+				editor.insert('\n' + fragment + '\n');			
+			}
+/*		
+		for(var action in refactoring)
+		{
+			action = refactoring[action];
+			var left = facts[action.left];
 			var newValue = action.new;
 			var location = locations[action.old];
 			var start = location.start;
@@ -301,7 +360,9 @@ this.displayFacts();
 
 			//replace token with new value
 			editor.session.replace(range, newValue);		
+			*/
 		}
+
 	}
 	
 	//parses code and generates abstract syntax tree (AST)
@@ -409,7 +470,24 @@ this.displayFacts();
 				}
 				break;
 			case 'forstatement':
-				var loops = this.wm({'relation':'is'},{'property':'loop'}).select('subject');
+				var structures = this.wm({'relation':'is'},{'property':'structure'}).select('subject');
+				
+				if(structures.toString() === '')
+				{
+					subject = 's1';
+				}
+				else
+				{
+					subject = 's' + (Number(loops.toString().substring(1)) + 1);
+				}
+				relation = 'is';
+				property = 'structure';
+				record = new Fact(subject, relation, property, location);
+				this.wm.insert(record);				
+				this.getFacts(ast.body, subject, 'relates');
+				this.addLocation(subject, relation, property, location);
+
+				var loops = this.wm({'relation':'is'},{'property':'for'}).select('subject');
 				
 				if(loops.toString() === '')
 				{
@@ -420,7 +498,7 @@ this.displayFacts();
 					subject = 'f' + (Number(loops.toString().substring(1)) + 1);
 				}
 				relation = 'is';
-				property = 'loop';
+				property = 'for';
 				record = new Fact(subject, relation, property, location);
 				this.wm.insert(record);				
 				this.getFacts(ast.init, subject, 'init');
@@ -526,32 +604,43 @@ this.displayFacts();
 				}
 				break;
 			case 'blockstatement':
-				var blocks = this.wm({'relation':'is'},{'property':'block'}).select('subject');
-				
-				if(blocks.toString() === '')
-				{
-					subject = 'b1';
-				}
-				else
-				{
-					subject = 'b' + (Number(loops.toString().substring(1)) + 1);
-				}
-				relation = 'is';
-				property = 'block';
-				record = new Fact(subject, relation, property, location);
-				this.wm.insert(record);				
-				this.addLocation(subject, relation, property, location);
-
-				for(var element in ast.body)
-				{
-					this.getFacts(ast.body[element], subject, 'includes');
-				}
-			
 				if(arguments.length === 3)
 				{
-					for(var element in ast.body)
+					if(arguments[2] === 'relates')
 					{
-						this.getFacts(ast.body[element], arguments[1], arguments[2]);
+						var blocks = this.wm({'relation':'is'},{'property':'block'}).select('subject');
+						
+						if(blocks.toString() === '')
+						{
+							subject = 'b1';
+						}
+						else
+						{
+							subject = 'b' + (Number(blocks.toString().substring(1)) + 1);
+						}
+						relation = 'is';
+						property = 'block';
+						record = new Fact(subject, relation, property, location);
+						this.wm.insert(record);				
+						this.addLocation(subject, relation, property, location);
+
+						for(var element in ast.body)
+						{
+							this.getFacts(ast.body[element], subject, 'includes');
+						}
+						
+						property = subject;
+						subject = arguments[1];
+						relation = arguments[2];
+						record = new Fact(subject, relation, property, location);
+						this.wm.insert(record);				
+					}
+					else
+					{
+						for(var element in ast.body)
+						{
+							this.getFacts(ast.body[element], arguments[1], arguments[2]);
+						}
 					}
 				}
 				break;
