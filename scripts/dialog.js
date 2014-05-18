@@ -131,6 +131,7 @@ $j(document).ready
 			
 			var operation = '<select class="values">';
 			operation += '<option value="replace">replace</option>';
+			operation += '<option value="replace test">replace test</option>';
 			operation += '<option value="before">before</option>';
 			operation += '<option value="after">after</option>';
 			operation += '<option value="swap">swap</option>';

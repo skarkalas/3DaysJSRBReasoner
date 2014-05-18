@@ -46,9 +46,13 @@ function RBReasoner()
 		//var rule = {"name":"test","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"loop","select":"subject"},{"relation":"includes","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"test","subject":"v2","property":"v5","select":"property"},{"relation":"equals","subject":"v6","property":"<=","select":"subject"},{"relation":"is","subject":"v7","property":"var","select":"subject"},{"relation":"","subject":"v8","property":"","select":"subject"},{"relation":"subscript","subject":"v1","property":"v9","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":""},{"operand1":"v2","operator":"!=","operand2":""},{"operand1":"v1","operator":"in","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"in","operand2":"v5"},{"operand1":"v6","operator":"in","operand2":"v5"},{"operand1":"v7","operator":"!=","operand2":""},{"operand1":"v7","operator":"in","operand2":"v5"},{"operand1":"v9","operator":"==","operand2":"v7"}],"refactoring":[{"old":"v6","new":"<","location":{"start":{"line":5,"column":16},"end":{"line":5,"column":22}}}]};
 		//var rule = {"name":"test","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"loop","select":"subject"},{"relation":"includes","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"test","subject":"v2","property":"v5","select":"property"},{"relation":"equals","subject":"v6","property":"<=","select":"subject"},{"relation":"is","subject":"v7","property":"var","select":"subject"},{"relation":"","subject":"v8","property":"","select":"subject"},{"relation":"subscript","subject":"v1","property":"v9","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"v1","operator":"in","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"in","operand2":"v5"},{"operand1":"v6","operator":"in","operand2":"v5"},{"operand1":"v7","operator":"!=","operand2":" "},{"operand1":"v7","operator":"in","operand2":"v5"},{"operand1":"v9","operator":"==","operand2":"v7"}],"references":[{"name":"lang ref","link":"www.google.com"}],"refactoring":[{"old":"v6","new":"<"}]};
 		//var rule = {"name":"scope","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"},{"relation":"is","subject":"v2","property":"block","select":"subject"},{"relation":"location","subject":"v1","property":"v3","select":"property"},{"relation":"location","subject":"v2","property":"v4","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v3","operator":"intersects","operand2":"v4"}],"references":[],"refactoring":[]};
-		var rule = {"name":"scope","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"},{"relation":"is","subject":"v2","property":"block","select":"subject"},{"relation":"location","subject":"v1","property":"v3","select":"property"},{"relation":"location","subject":"v2","property":"v4","select":"property"},{"relation":"is","subject":"v5","property":"structure","select":"subject"},{"relation":"relates","subject":"v5","property":"v6","select":"property"},{"relation":"location","subject":"v5","property":"v7","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"contains","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v6","operator":"==","operand2":"v2"},{"operand1":"","operator":"==","operand2":""}],"references":[],"refactoring":[{"left":"v3","operator":"before","right":"v7"}]};
+		//var rule = {"name":"scope","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"},{"relation":"is","subject":"v2","property":"block","select":"subject"},{"relation":"location","subject":"v1","property":"v3","select":"property"},{"relation":"location","subject":"v2","property":"v4","select":"property"},{"relation":"is","subject":"v5","property":"structure","select":"subject"},{"relation":"relates","subject":"v5","property":"v6","select":"property"},{"relation":"location","subject":"v5","property":"v7","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"contains","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v6","operator":"==","operand2":"v2"},{"operand1":"","operator":"==","operand2":""}],"references":[],"refactoring":[{"left":"v3","operator":"before","right":"v7"}]};
+		var rule = {"name":"SVS-2","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"for","select":"subject"},{"relation":"test","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"location","subject":"v2","property":"v5","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"in","operand2":"v3"},{"operand1":"","operator":"==","operand2":""}],"references":[],"refactoring":[{"left":"v5","operator":"replace test","right":"v1"}]};
 		this.kb.insert(rule);
-		//console.table(this.kb({'name':'test1'}));
+		rule = {"name":"SCO-4","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"},{"relation":"is","subject":"v2","property":"block","select":"subject"},{"relation":"location","subject":"v1","property":"v3","select":"property"},{"relation":"location","subject":"v2","property":"v4","select":"property"},{"relation":"is","subject":"v5","property":"structure","select":"subject"},{"relation":"relates","subject":"v5","property":"v6","select":"property"},{"relation":"location","subject":"v5","property":"v7","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"contains","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v6","operator":"==","operand2":"v2"},{"operand1":"","operator":"==","operand2":""}],"references":[],"refactoring":[{"left":"v3","operator":"before","right":"v7"}]};		
+		this.kb.insert(rule);
+
+//console.table(this.kb({'name':'test1'}));
 	}
 	
 	this.displayFacts = function()
@@ -509,16 +513,29 @@ this.displayFacts();
 				this.addLocation(subject, relation, property, location);
 				break;
 			case 'binaryexpression':
-				subject = ast.operator;
-				relation = 'equals';
+				var operators = this.wm({'relation':'is'},{'property':'operator'}).select('subject');
+				
+				if(operators.toString() === '')
+				{
+					subject = 'o1';
+				}
+				else
+				{
+					subject = 'o' + (Number(operators.toString().substring(1)) + 1);
+				}
+				relation = 'is';
+				property = 'operator';
+				record = new Fact(subject, relation, property, location);
+				this.wm.insert(record);
+				relation = 'value';
 				property = ast.operator;
 				record = new Fact(subject, relation, property, location);
 				this.wm.insert(record);
 				if(arguments.length === 3)
 				{
+					property = subject;
 					subject = arguments[1];
 					relation = arguments[2];
-					property = ast.operator;
 					record = new Fact(subject, relation, property, location);
 					this.wm.insert(record);
 					this.getFacts(ast.left, arguments[1], arguments[2]);
@@ -580,11 +597,30 @@ this.displayFacts();
 				//}
 				break;
 			case 'literal':
+				var literals = this.wm({'relation':'is'},{'property':'literal'}).select('subject');
+				
+				if(literals.toString() === '')
+				{
+					subject = 'l1';
+				}
+				else
+				{
+					subject = 'l' + (Number(literals.toString().substring(1)) + 1);
+				}
+				relation = 'is';
+				property = 'literal';
+				record = new Fact(subject, relation, property, location);
+				this.wm.insert(record);
+				relation = 'value';
+				property = ast.raw;
+				record = new Fact(subject, relation, property, location);
+				this.wm.insert(record);
+				
 				if(arguments.length === 3)
 				{
+					property = subject;
 					subject = arguments[1];
 					relation = arguments[2];
-					property = ast.raw;
 					record = new Fact(subject, relation, property, location);
 					this.wm.insert(record);
 				}
