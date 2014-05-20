@@ -44,6 +44,7 @@ function RBReasoner()
 //		this.kb.insert({"name":"SVS-1","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"},{"relation":"is","subject":"v2","property":"literal","select":"subject"},{"relation":"value","subject":"v1","property":"v3","select":"property"},{"relation":"is","subject":"v4","property":"literal","select":"subject"},{"relation":"","subject":"v5","property":"","select":"subject"},{"relation":"value","subject":"v2","property":"v6","select":"property"},{"relation":"value","subject":"v4","property":"v7","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"v2","operator":"in","operand2":"v3"},{"operand1":"v4","operator":"!=","operand2":" "},{"operand1":"v4","operator":"!=","operand2":"v2"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v6","operator":"==","operand2":"v7"}],"references":[],"refactoring":[]});
 //		this.kb.insert({"name":"SVS-2","facts":[{"relation":"is","subject":"v1","property":"literal","select":"subject"},{"relation":"value","subject":"v1","property":"v2","select":"property"},{"relation":"is","subject":"v3","property":"literal","select":"subject"},{"relation":"value","subject":"v3","property":"v4","select":"property"},{"relation":"","subject":"v5","property":"","select":"subject"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v3","operator":"!=","operand2":" "},{"operand1":"v4","operator":"==","operand2":"v2"},{"operand1":"v3","operator":"!=","operand2":"v1"}],"references":[],"refactoring":[]});
 //		this.kb.insert({"name":"SVS-3","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"for","select":"subject"},{"relation":"test","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"is","subject":"v5","property":"literal","select":"subject"},{"relation":"location","subject":"v5","property":"v6","select":"property"},{"relation":"value","subject":"v5","property":"v7","select":"property"},{"relation":"location","subject":"v2","property":"v8","select":"property"},{"relation":"","subject":"v9","property":"","select":"subject"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"","operator":"==","operand2":""},{"operand1":"v5","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v7","operator":"==","operand2":"v4"},{"operand1":"v8","operator":"contains","operand2":"v6"},{"operand1":"v5","operator":"in","operand2":"v3"}],"references":[],"refactoring":[]});
+		this.kb.insert({"name":"SVS-4","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"}],"rules":[{"operand1":"v1","operator":"is not","operand2":"distinct"}],"references":[],"refactoring":[]});
 	}
 	
 	this.displayFacts = function()
@@ -133,16 +134,20 @@ console.info(index , rule.facts.length);
 			{
 				facts[fact.subject] = fact.property;
 			}
+			else if (fact.relation === 'distinct')
+			{
+				facts[fact.subject] = wm({'relation':'is'},{'property':fact.property}).distinct(fact.select);
+			}
 			else
 			{
-				facts[fact.subject] = wm({'relation':fact.relation},{'property':fact.property}).distinct(fact.select);
+				facts[fact.subject] = wm({'relation':fact.relation},{'property':fact.property}).select(fact.select);
 			}
 			
 			factID = fact.subject;
 		}
 		else
 		{
-			facts[fact.property] = wm({'relation':fact.relation},{'subject':facts[fact.subject]}).distinct(fact.select);
+			facts[fact.property] = wm({'relation':fact.relation},{'subject':facts[fact.subject]}).select(fact.select);
 			factID = fact.property;
 		}
 console.log(2, facts[factID]);
@@ -181,6 +186,23 @@ console.log(2.1, facts[operand1], operator, facts[operand2]);
 				condition = !condition;
 			}
 		}	
+		else if(operator === 'is' || operator === 'is not')
+		{
+			if(operand2 === 'distinct')
+			{
+				var unique = facts[operand1].filter(onlyUnique);
+				condition = unique.length === facts[operand1].length;
+			
+				if(operator.search('not') !== -1)
+				{
+					condition = !condition;
+				}
+			}
+			else
+			{
+				condition = false;
+			}
+		}
 		else
 		{
 			if(operand2.trim() === '')
@@ -809,6 +831,12 @@ this.displayFacts();
 		}	
 	}
 }
+
+function onlyUnique(value, index, self)
+{ 
+	return self.indexOf(value) === index;
+}
+
 
 //definition for Fact
 //============================================================

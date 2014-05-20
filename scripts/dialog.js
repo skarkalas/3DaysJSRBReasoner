@@ -174,12 +174,19 @@ $j(document).ready
 			operator += '<option value="<=">&lt=</option>';
 			operator += '<option value="in">in</option>';
 			operator += '<option value="not in">not in</option>';
+			operator += '<option value="is">is</option>';
+			operator += '<option value="is not">is not</option>';
 			operator += '<option value="contains">contains</option>';
 			operator += '<option value="not contains">not contains</option>';
 			operator += '</select>';
 			
 			cell1.innerHTML = operator;	
-			cell2.innerHTML = '<select class="values">' + availableValues + '<option value=" ">empty</option></select>';				
+			var operand2 = '';
+			operand2 += '<select class="values">' + availableValues;
+			operand2 += '<option value="distinct">distinct</option>';
+			operand2 += '<option value=" ">empty</option>';
+			operand2 += '</select>';
+			cell2.innerHTML = operand2;			
 		}
 				
 		function insertFact(pattern)
@@ -220,6 +227,7 @@ $j(document).ready
 				relation += '<select>';
 				relation += '<option value="" selected>select a relation</option>';
 				relation += '<option value="is">is</option>';
+				relation += '<option value="distinct">distinct</option>';
 				relation += '<option value="equals">equals</option>';
 				relation += '</select>';
 
