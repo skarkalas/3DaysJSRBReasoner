@@ -207,52 +207,59 @@ $j(document).ready
 			var cell2 = row.insertCell(2);
 			var cell3 = row.insertCell(3);
 			
-			var relation = '';
-			relation += '<select>';
-			relation += '<option value="" selected>select a relation</option>';
-			relation += '<option value="is">is</option>';
-			relation += '<option value="includes">includes</option>';
-			relation += '<option value="relates">relates</option>';
-			relation += '<option value="equals">equals</option>';
-			relation += '<option value="length">length</option>';
-			relation += '<option value="location">location</option>';
-			relation += '<option value="init">init</option>';
-			relation += '<option value="test">test</option>';
-			relation += '<option value="update">update</option>';
-			relation += '<option value="subscript">subscript</option>';
-			relation += '</select>';
-			
-			var property = '';
-			property += '<select>';
-			property += '<option value="" selected>select a property</option>';
-			property += '<option value="var">var</option>';
-			property += '<option value="array">array</option>';
-			property += '<option value="for">for</option>';
-			property += '<option value="structure">structure</option>';
-			property += '<option value="block">block</option>';
-			property += '<option value="==">==</option>';
-			property += '<option value="!=">!=</option>';
-			property += '<option value=">">&gt</option>';
-			property += '<option value=">=">&gt=</option>';
-			property += '<option value="<">&lt</option>';
-			property += '<option value="<=">&lt=</option>';
-			
-			property += '</select>';	
-			
 			var deleteOption = '<input type="button" value="delete" onclick="deleteFact(this)"/>';
-			cell3.innerHTML = deleteOption;
-			
-			var availableValues = '<select class="values">' + getAvailableValues() + '</select>';
-			
+			cell3.innerHTML = deleteOption;			
 			cell0.innerHTML = getNextValue();
+
+			var availableValues = '';
+			var relation = '';
+			var property = '';
 
 			if(pattern === 'pattern1')
 			{
+				relation += '<select>';
+				relation += '<option value="" selected>select a relation</option>';
+				relation += '<option value="is">is</option>';
+				relation += '<option value="equals">equals</option>';
+				relation += '</select>';
+
+				property += '<select>';
+				property += '<option value="" selected>select a property</option>';
+				property += '<option value="literal">literal</option>';
+				property += '<option value="operator">operator</option>';
+				property += '<option value="var">var</option>';
+				property += '<option value="array">array</option>';
+				property += '<option value="for">for</option>';
+				property += '<option value="structure">structure</option>';
+				property += '<option value="block">block</option>';
+				property += '<option value="==">==</option>';
+				property += '<option value="!=">!=</option>';
+				property += '<option value=">">&gt</option>';
+				property += '<option value=">=">&gt=</option>';
+				property += '<option value="<">&lt</option>';
+				property += '<option value="<=">&lt=</option>';			
+				property += '</select>';	
+				
 				cell1.innerHTML = relation;
 				cell2.innerHTML = property;
 			}
 			else
 			{
+				relation += '<select>';
+				relation += '<option value="" selected>select a relation</option>';
+				relation += '<option value="includes">includes</option>';
+				relation += '<option value="relates">relates</option>';
+				relation += '<option value="length">length</option>';
+				relation += '<option value="location">location</option>';
+				relation += '<option value="value">value</option>';
+				relation += '<option value="init">init</option>';
+				relation += '<option value="test">test</option>';
+				relation += '<option value="update">update</option>';
+				relation += '<option value="subscript">subscript</option>';
+				relation += '</select>';
+
+				availableValues = '<select class="values">' + getAvailableValues() + '</select>';	
+
 				cell1.innerHTML = relation;
 				cell2.innerHTML = availableValues;			
 			}
@@ -391,7 +398,7 @@ function deleteFact(object)
 		row = rules.rows[i];
 		row.cells[0].innerHTML = '<select class="values">' + getAvailableValues() + '</select>';
 		row.cells[1].firstChild.options[0].selected = 'selected';
-		row.cells[2].innerHTML = '<select class="values">' + getAvailableValues() + '<option value="">empty</option></select>';
+		row.cells[2].innerHTML = '<select class="values">' + getAvailableValues() + '<option value=" ">empty</option></select>';
 	}
 	
 	//get a reference to the refactoring table
