@@ -1,6 +1,3 @@
-var reasoner = new RBReasoner();
-reasoner.init(editor);
-
 //definition for RB Reasoner
 //============================================================
 	
@@ -15,6 +12,9 @@ function RBReasoner()
 	this.kb = null;							//knowledge base
 	this.agenda = null;						//activated rules
 	this.editor = null;						//hold a ref to the editor
+	this.journal = null;					//hold a ref to the journal
+	this.codebase = null;					//hold a ref to the codebase
+	this.currentCodeID = null;				//identifies the currently processed code
 
 	//initialisation function - executed only once
 	(
@@ -30,21 +30,23 @@ function RBReasoner()
 	//========================================================
 
 	//further initialisation initiated by the user
-	this.init = function(editor)
+	this.init = function(editor, journal, codebase)
 	{
 		this.loadKB();				//load kb with rules
 		this.editor = editor;		//init editor
+		this.journal = journal;		//init journal
+		this.codebase = codebase;	//init codebase
 	}
 	
 	//load kb with rules
 	this.loadKB = function()
 	{
-//		this.kb.insert({"name":"SCO-4","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"},{"relation":"is","subject":"v2","property":"block","select":"subject"},{"relation":"location","subject":"v1","property":"v3","select":"property"},{"relation":"location","subject":"v2","property":"v4","select":"property"},{"relation":"is","subject":"v5","property":"structure","select":"subject"},{"relation":"relates","subject":"v5","property":"v6","select":"property"},{"relation":"location","subject":"v5","property":"v7","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"contains","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v6","operator":"==","operand2":"v2"},{"operand1":"","operator":"==","operand2":""}],"references":[],"refactoring":[{"left":"v3","operator":"before","right":"v7"}]});
-//		this.kb.insert({"name":"AR1-1","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"for","select":"subject"},{"relation":"includes","subject":"v2","property":"v3","select":"property"},{"relation":"is","subject":"v4","property":"var","select":"subject"},{"relation":"subscript","subject":"v1","property":"v5","select":"property"},{"relation":"test","subject":"v2","property":"v6","select":"property"},{"relation":"length","subject":"v1","property":"v7","select":"property"},{"relation":"is","subject":"v8","property":"literal","select":"subject"},{"relation":"value","subject":"v8","property":"v9","select":"property"},{"relation":"","subject":"v10","property":"","select":"subject"},{"relation":"is","subject":"v11","property":"operator","select":"subject"},{"relation":"value","subject":"v11","property":"v12","select":"property"},{"relation":"equals","subject":"v13","property":"<=","select":"subject"},{"relation":"","subject":"v14","property":"","select":"subject"},{"relation":"location","subject":"v11","property":"v15","select":"property"},{"relation":"location","subject":"v2","property":"v16","select":"property"},{"relation":"equals","subject":"v17","property":"<","select":"subject"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"v1","operator":"in","operand2":"v3"},{"operand1":"v4","operator":"!=","operand2":" "},{"operand1":"v4","operator":"in","operand2":"v5"},{"operand1":"v4","operator":"in","operand2":"v6"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v8","operator":"!=","operand2":" "},{"operand1":"v9","operator":"==","operand2":"v7"},{"operand1":"v8","operator":"in","operand2":"v6"},{"operand1":"v11","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v13","operator":"==","operand2":"v12"},{"operand1":"v11","operator":"in","operand2":"v6"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v16","operator":"contains","operand2":"v15"},{"operand1":"","operator":"==","operand2":""}],"references":[],"refactoring":[]});
-//		this.kb.insert({"name":"SVS-1","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"},{"relation":"is","subject":"v2","property":"literal","select":"subject"},{"relation":"value","subject":"v1","property":"v3","select":"property"},{"relation":"is","subject":"v4","property":"literal","select":"subject"},{"relation":"","subject":"v5","property":"","select":"subject"},{"relation":"value","subject":"v2","property":"v6","select":"property"},{"relation":"value","subject":"v4","property":"v7","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"v2","operator":"in","operand2":"v3"},{"operand1":"v4","operator":"!=","operand2":" "},{"operand1":"v4","operator":"!=","operand2":"v2"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v6","operator":"==","operand2":"v7"}],"references":[],"refactoring":[]});
-//		this.kb.insert({"name":"SVS-2","facts":[{"relation":"is","subject":"v1","property":"literal","select":"subject"},{"relation":"value","subject":"v1","property":"v2","select":"property"},{"relation":"is","subject":"v3","property":"literal","select":"subject"},{"relation":"value","subject":"v3","property":"v4","select":"property"},{"relation":"","subject":"v5","property":"","select":"subject"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v3","operator":"!=","operand2":" "},{"operand1":"v4","operator":"==","operand2":"v2"},{"operand1":"v3","operator":"!=","operand2":"v1"}],"references":[],"refactoring":[]});
-//		this.kb.insert({"name":"SVS-3","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"for","select":"subject"},{"relation":"test","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"is","subject":"v5","property":"literal","select":"subject"},{"relation":"location","subject":"v5","property":"v6","select":"property"},{"relation":"value","subject":"v5","property":"v7","select":"property"},{"relation":"location","subject":"v2","property":"v8","select":"property"},{"relation":"","subject":"v9","property":"","select":"subject"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"","operator":"==","operand2":""},{"operand1":"v5","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v7","operator":"==","operand2":"v4"},{"operand1":"v8","operator":"contains","operand2":"v6"},{"operand1":"v5","operator":"in","operand2":"v3"}],"references":[],"refactoring":[]});
-		this.kb.insert({"name":"SVS-4","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"}],"rules":[{"operand1":"v1","operator":"is not","operand2":"distinct"}],"references":[],"refactoring":[]});
+		this.kb.insert({"name":"SCO-4","misconception":"Understanding the difference between block scope and function scope.","issue":"A variable is declared within a block of statements.","solution":"Move the declaration before the block.","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"},{"relation":"is","subject":"v2","property":"block","select":"subject"},{"relation":"location","subject":"v1","property":"v3","select":"property"},{"relation":"location","subject":"v2","property":"v4","select":"property"},{"relation":"is","subject":"v5","property":"structure","select":"subject"},{"relation":"relates","subject":"v5","property":"v6","select":"property"},{"relation":"location","subject":"v5","property":"v7","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"contains","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v6","operator":"==","operand2":"v2"},{"operand1":"","operator":"==","operand2":""}],"references":[],"refactoring":[{"left":"v3","operator":"before","right":"v7"}]});
+		this.kb.insert({"name":"AR1-1","misconception":"Understanding off-by-one errors with arrays in loops.","issue":"An array is referenced by a loop iterator that becomes equal to its length.","solution":"Replace <= with <","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"for","select":"subject"},{"relation":"includes","subject":"v2","property":"v3","select":"property"},{"relation":"is","subject":"v4","property":"var","select":"subject"},{"relation":"subscript","subject":"v1","property":"v5","select":"property"},{"relation":"test","subject":"v2","property":"v6","select":"property"},{"relation":"length","subject":"v1","property":"v7","select":"property"},{"relation":"is","subject":"v8","property":"literal","select":"subject"},{"relation":"value","subject":"v8","property":"v9","select":"property"},{"relation":"","subject":"v10","property":"","select":"subject"},{"relation":"is","subject":"v11","property":"operator","select":"subject"},{"relation":"value","subject":"v11","property":"v12","select":"property"},{"relation":"equals","subject":"v13","property":"<=","select":"subject"},{"relation":"","subject":"v14","property":"","select":"subject"},{"relation":"location","subject":"v11","property":"v15","select":"property"},{"relation":"location","subject":"v2","property":"v16","select":"property"},{"relation":"equals","subject":"v17","property":"<","select":"subject"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"v1","operator":"in","operand2":"v3"},{"operand1":"v4","operator":"!=","operand2":" "},{"operand1":"v4","operator":"in","operand2":"v5"},{"operand1":"v4","operator":"in","operand2":"v6"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v8","operator":"!=","operand2":" "},{"operand1":"v9","operator":"==","operand2":"v7"},{"operand1":"v8","operator":"in","operand2":"v6"},{"operand1":"v11","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v13","operator":"==","operand2":"v12"},{"operand1":"v11","operator":"in","operand2":"v6"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v16","operator":"contains","operand2":"v15"},{"operand1":"","operator":"==","operand2":""}],"references":[],"refactoring":[]});
+		this.kb.insert({"name":"SVS-1","misconception":"Understanding the difference between variable values and literal values.","issue":"The value of a variable exists in other places as literal value.","solution":"Replace the literal values with the variable value.","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"},{"relation":"is","subject":"v2","property":"literal","select":"subject"},{"relation":"value","subject":"v1","property":"v3","select":"property"},{"relation":"is","subject":"v4","property":"literal","select":"subject"},{"relation":"","subject":"v5","property":"","select":"subject"},{"relation":"value","subject":"v2","property":"v6","select":"property"},{"relation":"value","subject":"v4","property":"v7","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"v2","operator":"in","operand2":"v3"},{"operand1":"v4","operator":"!=","operand2":" "},{"operand1":"v4","operator":"!=","operand2":"v2"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v6","operator":"==","operand2":"v7"}],"references":[],"refactoring":[]});
+		this.kb.insert({"name":"SVS-2","misconception":"Understanding the necessity of variables/constants.","issue":"The same literal value exists in many locations.","solution":"Replace the values with a variable.","facts":[{"relation":"is","subject":"v1","property":"literal","select":"subject"},{"relation":"value","subject":"v1","property":"v2","select":"property"},{"relation":"is","subject":"v3","property":"literal","select":"subject"},{"relation":"value","subject":"v3","property":"v4","select":"property"},{"relation":"","subject":"v5","property":"","select":"subject"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v3","operator":"!=","operand2":" "},{"operand1":"v4","operator":"==","operand2":"v2"},{"operand1":"v3","operator":"!=","operand2":"v1"}],"references":[],"refactoring":[]});
+		this.kb.insert({"name":"SVS-3","misconception":"Understanding the necessity of variables when referring to array length.","issue":"Literal value that corresponds to the length of an array exists in the conditional part of a loop.","solution":"Replace the value with the array property.","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"for","select":"subject"},{"relation":"test","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"is","subject":"v5","property":"literal","select":"subject"},{"relation":"location","subject":"v5","property":"v6","select":"property"},{"relation":"value","subject":"v5","property":"v7","select":"property"},{"relation":"location","subject":"v2","property":"v8","select":"property"},{"relation":"","subject":"v9","property":"","select":"subject"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"","operator":"==","operand2":""},{"operand1":"v5","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v7","operator":"==","operand2":"v4"},{"operand1":"v8","operator":"contains","operand2":"v6"},{"operand1":"v5","operator":"in","operand2":"v3"}],"references":[],"refactoring":[]});
+		//this.kb.insert({"name":"SVS-4","misconception":"Understanding the role of the variable declaration.","issue":"Multiple declarations of the same variable.","solution":"Remove the word var after the initial declaration.","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"}],"rules":[{"operand1":"v1","operator":"is not","operand2":"distinct"}],"references":[],"refactoring":[]});
 	}
 	
 	this.displayFacts = function()
@@ -65,6 +67,8 @@ function RBReasoner()
 		var kb = this.kb;
 		var agenda = this.agenda;
 		var checkRule = this.checkRule;
+		var updateJournal = this.updateJournal;
+		var codeid = this.currentCodeID;
 
 		//check every rule with the given facts
 		kb().each
@@ -75,12 +79,15 @@ function RBReasoner()
 				var rule = JSON.parse(JSON.stringify(record));
 				
 				//check if it needs activation
+				console.info('*** rule: ' + record.name + ' is being checked');
 				var facts = [];
 				var locations = [];
 				var test = checkRule(rule, 0, facts, wm, locations);
-console.log(test);
-
+				
 				var ruleName = record.name;
+				var misconception = record.misconception;
+				var issue = record.issue;
+				var solution = record.solution;
 				var statements = record.statements;
 				var refactoring = record.refactoring;
 				var rules = record.rules;
@@ -89,11 +96,17 @@ console.log(test);
 				{
 					var activeRule = {};
 					activeRule.name = ruleName;
+					activeRule.misconception = misconception;
+					activeRule.issue = issue;
+					activeRule.solution = solution;
 					activeRule.facts = facts;
 					activeRule.locations = locations;
 					activeRule.factCount = Object.keys(facts).length;
 					activeRule.refactoring = refactoring;					
 					agenda.insert(activeRule);
+
+					console.info('*** rule: ' + ruleName + ' is activated');
+					updateJournal(ruleName, 'activated', codeid);
 				}
 			}
 		);
@@ -102,14 +115,15 @@ console.log(test);
 	//checks whether a rule needs to be activated
 	this.checkRule = function(rule, index, facts, wm, locations)
 	{
-console.info(index , rule.facts.length);
+		console.info('index no: %d, no of facts: %d.', index , rule.facts.length);
+		
 		if(index >= rule.facts.length)
 		{
 			return true;
 		}
 		
-		console.log(1, JSON.stringify(rule.facts[index])+ ' ' + JSON.stringify(rule.rules[index]));
-		console.log(1, index, facts);
+		console.log(index + '.' + 1, 'facts already evaluated -->', facts);
+		console.log(index + '.' + 2, 'next couple to be evaluated -->', 'fact:', JSON.stringify(rule.facts[index]), 'rule:', JSON.stringify(rule.rules[index]));
 		
 		//get the next relevant fact from the wm
 		var fact = rule.facts[index];
@@ -150,7 +164,8 @@ console.info(index , rule.facts.length);
 			facts[fact.property] = wm({'relation':fact.relation},{'subject':facts[fact.subject]}).select(fact.select);
 			factID = fact.property;
 		}
-console.log(2, facts[factID]);
+		
+		console.log(index + '.' + 3, 'fact value retrieved from the wm:', facts[factID]);
 	
 		//evaluate the corresponding subrule
 		var subrule = rule.rules[index];
@@ -159,8 +174,9 @@ console.log(2, facts[factID]);
 		var operand2 = subrule.operand2;
 				
 		var condition = true;
-console.log(2.1, operand1, operator, operand2);
-console.log(2.1, facts[operand1], operator, facts[operand2]);
+
+		console.log(index + '.' + 4, 'operation:', operand1, operator, operand2);
+		console.log(index + '.' + 5, 'operation:', facts[operand1], operator, facts[operand2] === undefined ? operand2 : facts[operand2]);
 
 		if(operator === 'in' || operator === 'not in')
 		{
@@ -218,11 +234,12 @@ console.log(2.1, facts[operand1], operator, facts[operand2]);
 			}
 			else
 			{
-console.log(3, facts[operand1], operator, facts[operand2]);
 				condition = eval('"' + facts[operand1] + '"' + operator + '"' + facts[operand2] + '"');
 			}
 		}
-console.log(4, condition);		
+
+		console.log(index + '.' + 6, 'operation result:', condition);		
+
 		if(condition === false)
 		{
 			return false;
@@ -230,7 +247,6 @@ console.log(4, condition);
 		
 		if(fact.relation === '')
 		{
-console.log(5, facts[factID]);					
 			if(arguments.callee(rule, index + 1, facts, wm, locations) === true)
 			{
 				return true;
@@ -240,16 +256,18 @@ console.log(5, facts[factID]);
 		if(fact.relation === 'is')
 		{
 			var factValues = facts[factID].slice(0);
-			
+
+			console.log(index + '.' + 7, 'fact values split');
+
 			for(var factValue in factValues)
 			{
 				facts[factID] = factValues[factValue];
-console.log(5.1, facts[factID], fact.relation,  fact.property, factValues[factValue]);		
+				console.log(index + '.' + 7.1, '(subject)', facts[factID], '(relation)', fact.relation, '(property)', fact.property, '(from values)', factValues[factValue]);
 
 				locations[factID] = wm({'relation':fact.relation},{'property':fact.property},{'subject':factValues[factValue]}).select('location')[0];
-console.log(5.2, locations[factID]);
+				console.log(index + '.' + 7.2, 'fact location:', locations[factID]);
 				locations[factID] = JSON.parse(locations[factID]);
-console.log(5.3, facts[factID]);			
+
 				if(arguments.callee(rule, index + 1, facts, wm, locations) === true)
 				{
 					return true;
@@ -273,24 +291,114 @@ console.log(5.3, facts[factID]);
 		//get highlighted text
 		var code=this.editor.getCopyText();
 
-		if(code === '')
+		if(code.trim() === '')
 		{
 			//get code that is not highlighted
 			code=this.editor.getSession().getValue();
 		}
-	
+
+		if(code.trim() === '')
+		{
+			return false;
+		}
+
+		//insert code into the codebase
+		var record = {};
+		record.code = code;
+		record.id = Date.now();
+		this.codebase.insert(record);
+		
+		//update current code ID from the database
+		this.currentCodeID = record.id;
+
 		//use esprima to get the AST
 		var ast = this.getAST(code, true, true, true, true);
+
+		//remove facts from previous analysis
+		this.wm().remove(true);
+		
+		//remove activated rules from the agenda
+		this.agenda().remove(true);
 		
 		//get the facts
 		this.getFacts(ast);
-this.displayFacts();
-//return;
+
+		//display the facts to the console
+		this.displayFacts();
+
 		//activate rules
 		this.activateRules();
 		
-		//fire a rule in the agenda
-		this.fireRule();
+//display the data portion in the journal
+console.table(this.journal().select('data'));		
+
+		//if there are active rules in the agenda, there is support available
+		return this.agenda().count() > 0;
+	}
+	
+	this.updateJournal = function(name, state, codeid)
+	{
+
+		var record = {};
+		record.id = Date.now();
+		record.userid = '';
+		record.issuer = 'system';
+		record.type = 'help';
+		record.data = {};
+		record.data.misconception = name;
+		record.data.state = state;
+		record.data.codeid = codeid;
+		this.journal.insert(record);
+	}
+	
+	this.getMisconceptionsReport = function()
+	{
+		var html="";
+
+		html+="<table id='level3report'>";
+		html+="<caption>Level 3 Report: "+new Date().toLocaleString()+"</caption>";
+	
+		this.agenda().each
+		(
+			function (record,recordnumber)
+			{
+				if(recordnumber != 0)
+				{
+					html+="<tr class='divider'>";
+					html+="<td colspan='2'><hr/>";		
+					html+="</td>";
+					html+="</tr>";				
+				}
+
+				html+="<tr>";
+				html+="<td>";
+				html+="<span>misconception:</span>";
+				html+="</td>";
+				html+="<td>";
+				html+="<cite>" + record.misconception + "</cite>";
+				html+="</td>";
+				html+="</tr>";
+				html+="<tr>";
+				html+="<td class='evidence'>";
+				html+="<span>issue:</span>";
+				html+="</td>";
+				html+="<td class='evidence'>";
+				html+="<span>" + record.issue + "</span>";
+				html+="</td>";
+				html+="</tr>";
+				html+="<tr>";
+				html+="<td class='evidence'>";
+				html+="<span>solution:</span>";
+				html+="</td>";
+				html+="<td class='evidence'>";
+				html+="<span>" + record.solution + "</span>";
+				html+="</td>";
+				html+="</tr>";
+			}
+		);
+		
+		html+="</table>";
+		return html;
 	}
 	
 	this.fireRule =  function()
@@ -309,7 +417,10 @@ this.displayFacts();
 		
 		//select rule with the lowest number of facts
 		var rule = this.agenda({'factCount':factCount}).get()[0];
-		
+	}
+	
+	this.refactor = function(rule)
+	{
 		//refactor the code
 		var facts = rule.facts;
 		var locations = rule.locations;
