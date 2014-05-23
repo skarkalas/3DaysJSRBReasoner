@@ -46,7 +46,7 @@ function RBReasoner()
 		this.kb.insert({"name":"SVS-1","misconception":"Understanding the difference between variable values and literal values.","issue":"The value of a variable exists in other places as literal value.","solution":"Replace the literal values with the variable value.","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"},{"relation":"is","subject":"v2","property":"literal","select":"subject"},{"relation":"value","subject":"v1","property":"v3","select":"property"},{"relation":"is","subject":"v4","property":"literal","select":"subject"},{"relation":"","subject":"v5","property":"","select":"subject"},{"relation":"value","subject":"v2","property":"v6","select":"property"},{"relation":"value","subject":"v4","property":"v7","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"v2","operator":"in","operand2":"v3"},{"operand1":"v4","operator":"!=","operand2":" "},{"operand1":"v4","operator":"!=","operand2":"v2"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v6","operator":"==","operand2":"v7"}],"references":[],"refactoring":[]});
 		this.kb.insert({"name":"SVS-2","misconception":"Understanding the necessity of variables/constants.","issue":"The same literal value exists in many locations.","solution":"Replace the values with a variable.","facts":[{"relation":"is","subject":"v1","property":"literal","select":"subject"},{"relation":"value","subject":"v1","property":"v2","select":"property"},{"relation":"is","subject":"v3","property":"literal","select":"subject"},{"relation":"value","subject":"v3","property":"v4","select":"property"},{"relation":"","subject":"v5","property":"","select":"subject"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v3","operator":"!=","operand2":" "},{"operand1":"v4","operator":"==","operand2":"v2"},{"operand1":"v3","operator":"!=","operand2":"v1"}],"references":[],"refactoring":[]});
 		this.kb.insert({"name":"SVS-3","misconception":"Understanding the necessity of variables when referring to array length.","issue":"Literal value that corresponds to the length of an array exists in the conditional part of a loop.","solution":"Replace the value with the array property.","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"for","select":"subject"},{"relation":"test","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"is","subject":"v5","property":"literal","select":"subject"},{"relation":"location","subject":"v5","property":"v6","select":"property"},{"relation":"value","subject":"v5","property":"v7","select":"property"},{"relation":"location","subject":"v2","property":"v8","select":"property"},{"relation":"","subject":"v9","property":"","select":"subject"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"","operator":"==","operand2":""},{"operand1":"v5","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v7","operator":"==","operand2":"v4"},{"operand1":"v8","operator":"contains","operand2":"v6"},{"operand1":"v5","operator":"in","operand2":"v3"}],"references":[],"refactoring":[]});
-		//this.kb.insert({"name":"SVS-4","misconception":"Understanding the role of the variable declaration.","issue":"Multiple declarations of the same variable.","solution":"Remove the word var after the initial declaration.","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"}],"rules":[{"operand1":"v1","operator":"is not","operand2":"distinct"}],"references":[],"refactoring":[]});
+		this.kb.insert({"name":"SVS-4","misconception":"Understanding the role of the variable declaration.","issue":"Multiple declarations of the same variable.","solution":"Remove the word var after the initial declaration.","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"}],"rules":[{"operand1":"v1","operator":"is not","operand2":"distinct"}],"references":[],"refactoring":[]});
 	}
 	
 	this.displayFacts = function()
@@ -572,10 +572,12 @@ console.table(this.journal().select('data'));
 							property  =  'var';
 						}
 
-						record = new Fact(subject, relation, property, location);
-						this.wm.insert(record);
-
-						this.addLocation(subject, relation, property, location);
+						if(this.wm({'subject':subject},{'relation':relation},{'property':property},{'location':location}).count() === 0)
+						{
+							record = new Fact(subject, relation, property, location);
+							this.wm.insert(record);
+							this.addLocation(subject, relation, property, location);
+						}
 												
 						if(property === 'array')
 						{
@@ -772,8 +774,12 @@ console.table(this.journal().select('data'));
 					subject = ast.object.name;
 					relation = 'subscript';
 					property = ast.property.name;
-					record = new Fact(subject, relation, property, location);
-					this.wm.insert(record);				
+					
+					if(this.wm({'subject':subject},{'relation':relation},{'property':property},{'location':location}).count() === 0)
+					{
+						record = new Fact(subject, relation, property, location);
+						this.wm.insert(record);
+					}
 				}
 				if(arguments.length === 3)
 				{
@@ -804,25 +810,34 @@ console.table(this.journal().select('data'));
 				//}
 				break;
 			case 'literal':
-				var literals = this.wm({'relation':'is'},{'property':'literal'}).select('subject');
+				record = this.wm({'relation':'is'},{'property':'literal'},{'location':location});
 
-				if(literals.toString() === '')
+				if(record.count() === 0)
 				{
-					subject = 'l1';
+					var literals = this.wm({'relation':'is'},{'property':'literal'}).select('subject');
+
+					if(literals.toString() === '')
+					{
+						subject = 'l1';
+					}
+					else
+					{
+						subject = 'l' + (Number(literals[literals.length - 1].substring(1)) + 1);
+					}
+					relation = 'is';
+					property = 'literal';
+					record = new Fact(subject, relation, property, location);
+					this.wm.insert(record);
+					this.addLocation(subject, relation, property, location);
+					relation = 'value';
+					property = ast.raw;
+					record = new Fact(subject, relation, property, location);
+					this.wm.insert(record);
 				}
 				else
 				{
-					subject = 'l' + (Number(literals[literals.length - 1].substring(1)) + 1);
+					subject = record.select('subject');
 				}
-				relation = 'is';
-				property = 'literal';
-				record = new Fact(subject, relation, property, location);
-				this.wm.insert(record);
-				this.addLocation(subject, relation, property, location);
-				relation = 'value';
-				property = ast.raw;
-				record = new Fact(subject, relation, property, location);
-				this.wm.insert(record);
 				
 				if(arguments.length === 3)
 				{
