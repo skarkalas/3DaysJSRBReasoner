@@ -353,6 +353,8 @@ console.table(this.journal().select('data'));
 	
 	this.getMisconceptionsReport = function()
 	{
+		var journal = this.journal;
+	
 		var html="";
 
 		html+="<table id='level3report'>";
@@ -365,33 +367,65 @@ console.table(this.journal().select('data'));
 				if(recordnumber != 0)
 				{
 					html+="<tr class='divider'>";
-					html+="<td colspan='2'><hr/>";		
+					html+="<td colspan='3'><hr/>";		
 					html+="</td>";
 					html+="</tr>";				
 				}
 
 				html+="<tr>";
-				html+="<td>";
+				html+="<td style='width:50%;background-color:#FFFFFF' colspan='2'>";
+				html+="<input style='width:100%' type='button' value='more help...' onclick='moreHelp(this, " + '"' + record.name + '"' + ")'/>";
+				html+="</td>";
+				html+="<td style='background-color:#FFFFFF'>";
+				html+="<input style='width:100%' type='button' value='not relevant' onclick='deleteEntry(this, " + '"' + record.name + '"' + ")'/>";
+				html+="</td>";
+				html+="</tr>";							
+				html+="<tr>";
+				html+="<td style='width:25%'>";
 				html+="<span>misconception:</span>";
 				html+="</td>";
-				html+="<td>";
+				html+="<td colspan='2'>";
 				html+="<cite>" + record.misconception + "</cite>";
 				html+="</td>";
 				html+="</tr>";
-				html+="<tr>";
+				html+="<tr style='display:none'>";
 				html+="<td class='evidence'>";
 				html+="<span>issue:</span>";
 				html+="</td>";
-				html+="<td class='evidence'>";
+				html+="<td class='evidence' colspan='2'>";
 				html+="<span>" + record.issue + "</span>";
 				html+="</td>";
 				html+="</tr>";
-				html+="<tr>";
+				html+="<tr style='display:none'>";
+				html+="<td class='evidence'>";
+				html+="<span>documentation:</span>";
+				html+="</td>";
+				html+="<td class='evidence' colspan='2'>";
+				html+="<input style='width:100%' type='button' value='read more about it...'/>";
+				html+="</td>";
+				html+="</tr>";
+				html+="<tr style='display:none'>";
 				html+="<td class='evidence'>";
 				html+="<span>solution:</span>";
 				html+="</td>";
-				html+="<td class='evidence'>";
+				html+="<td class='evidence' colspan='2'>";
 				html+="<span>" + record.solution + "</span>";
+				html+="</td>";
+				html+="</tr>";
+				html+="<tr style='display:none'>";
+				html+="<td class='evidence'>";
+				html+="<span>refactoring:</span>";
+				html+="</td>";
+				html+="<td class='evidence' colspan='2'>";
+				html+="<input style='width:100%' type='button' value='fix it for me'/>";
+				html+="</td>";
+				html+="</tr>";
+				html+="<tr style='display:none'>";
+				html+="<td class='evidence'>";
+				html+="<span>visualisation:</span>";
+				html+="</td>";
+				html+="<td class='evidence' colspan='2'>";
+				html+="<input style='width:100%' type='button' value='show me what it does'/>";
 				html+="</td>";
 				html+="</tr>";
 			}
@@ -956,11 +990,123 @@ console.table(this.journal().select('data'));
 			this.wm.insert(record);				
 		}	
 	}
+	
+	this.getPreviousHelp = function(id)
+	{
+		return this.journal
+		(
+			function()
+			{
+				return (this.type === 'help' && this.data.misconception === id && this.data.state === 'fired');
+			}
+		).count();
+	}
 }
 
 function onlyUnique(value, index, self)
 { 
 	return self.indexOf(value) === index;
+}
+
+function moreHelp(object, id)
+{
+	//disable the button so that the user cannot use for more help
+	object.disabled = true;
+
+	//find out how much help has been given in the past
+	var previousHelp = reasoner.getPreviousHelp(id);
+
+	//update the journal  - tell it that this rule fired
+	reasoner.updateJournal(id, 'fired', reasoner.currentCodeID);
+
+//display the journal in the console
+console.table(reasoner.journal().select('data'));
+	
+	//get a reference to the enclosing <TR> element
+	var row = object.parentNode.parentNode;
+
+	//display issue+documentation
+	row = row.nextSibling.nextSibling;
+	displayRow(row);
+	row = row.nextSibling;
+	displayRow(row);
+
+	if(previousHelp === 0)
+	{
+		return;
+	}
+
+	//display +solution+refactoring
+	row = row.nextSibling;
+	displayRow(row);
+	row = row.nextSibling;
+	displayRow(row);
+
+	if(previousHelp === 1)
+	{
+		return;
+	}
+	
+	//display +visualisation
+	row = row.nextSibling;
+	displayRow(row);
+}
+
+function displayRow(row)
+{
+		if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1)
+		{
+			row.style.display = 'table-row';
+		}
+		else
+		{
+			row.style.display = 'inline';
+		}
+}
+
+function deleteEntry(object, id)
+{
+	var confirmation = confirm("This action will remove the misconception from the list.\nWould you like to continue?");
+	
+	if (confirmation === false)
+	{
+		return;
+	}
+
+	//get a reference to the enclosing <TR> element
+	var row = object.parentNode.parentNode;
+
+	//get a reference to the parent node
+	var parent = row.parentNode;
+	
+	//gather rows to be removed
+	var rows = [];
+
+	while(true)
+	{
+		if(row == null)
+		{
+			break;
+		}
+		
+		rows[rows.length] = row;
+
+		if(row.firstChild.firstChild.tagName === 'HR')
+		{
+			break;
+		}
+		
+		row = row.nextSibling;
+	}
+	
+	//remove rows from parent
+	for(row in rows)
+	{
+		parent.removeChild(rows[row]);
+	}
+	
+	reasoner.updateJournal(id, 'irrelevant', reasoner.currentCodeID);
+	console.table(reasoner.journal().select('data'));
 }
 
 
