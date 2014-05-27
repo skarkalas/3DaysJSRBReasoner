@@ -401,7 +401,7 @@ console.table(this.journal().select('data'));
 				html+="<span>documentation:</span>";
 				html+="</td>";
 				html+="<td class='evidence' colspan='2'>";
-				html+="<input style='width:100%' type='button' value='read more about it...'/>";
+				html+="<input style='width:100%' type='button' value='read more about it...' onclick='readDoc(" + '"' + record.name + '"' + ")'/>";
 				html+="</td>";
 				html+="</tr>";
 				html+="<tr style='display:none'>";
@@ -1010,8 +1010,21 @@ function onlyUnique(value, index, self)
 
 function moreHelp(object, id)
 {
-	//disable the button so that the user cannot use for more help
-	object.disabled = true;
+	//disable all the buttons so that the user cannot use them for more help for the same or other problems
+	var buttons = document.getElementsByTagName('input');
+	
+	for(var button in buttons)
+	{
+		if(buttons[button].type === 'button')
+		{
+			button = buttons[button];
+			
+			if(button.value === 'more help...')
+			{
+				button.disabled = true;
+			}
+		}
+	}
 
 	//find out how much help has been given in the past
 	var previousHelp = reasoner.getPreviousHelp(id);
