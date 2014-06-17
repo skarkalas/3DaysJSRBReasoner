@@ -14,6 +14,8 @@ function RBReasoner()
 	this.editor = null;						//hold a ref to the editor
 	this.journal = null;					//hold a ref to the journal
 	this.codebase = null;					//hold a ref to the codebase
+	this.debugbase = null;					//hold a ref to the debugbase
+	this.jslintbase = null;					//hold a ref to the jslint base
 	this.currentCodeID = null;				//identifies the currently processed code
 
 	//initialisation function - executed only once
@@ -23,7 +25,9 @@ function RBReasoner()
 			object.wm = TAFFY();			//empty database for wm
 			object.kb = TAFFY();			//empty database for kb
 			object.agenda = TAFFY();		//empty database for agenda
-		}
+			object.jslintbase = TAFFY();	//empty database for jslint
+			object.debugbase = TAFFY();		//empty database for debug info
+	}
 	)(this);
 	
 	//member methods
@@ -33,6 +37,7 @@ function RBReasoner()
 	this.init = function(editor, journal, codebase)
 	{
 		this.loadKB();				//load kb with rules
+		this.loadJSLint();			//load the JSLint rules
 		this.editor = editor;		//init editor
 		this.journal = journal;		//init journal
 		this.codebase = codebase;	//init codebase
@@ -41,18 +46,147 @@ function RBReasoner()
 	//load kb with rules
 	this.loadKB = function()
 	{
-		this.kb.insert({"name":"SCO-4","misconception":"Understanding the difference between block scope and function scope.","issue":"A variable is declared within a block of statements.","solution":"Move the declaration before the block.","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"},{"relation":"is","subject":"v2","property":"block","select":"subject"},{"relation":"location","subject":"v1","property":"v3","select":"property"},{"relation":"location","subject":"v2","property":"v4","select":"property"},{"relation":"is","subject":"v5","property":"structure","select":"subject"},{"relation":"relates","subject":"v5","property":"v6","select":"property"},{"relation":"location","subject":"v5","property":"v7","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"contains","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v6","operator":"==","operand2":"v2"},{"operand1":"","operator":"==","operand2":""}],"references":[],"refactoring":[]});
-//		this.kb.insert({"name":"AR1-1","misconception":"Understanding off-by-one errors with arrays in loops.","issue":"An array is referenced by a loop iterator that becomes equal to its length.","solution":"Replace <= with <","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"for","select":"subject"},{"relation":"includes","subject":"v2","property":"v3","select":"property"},{"relation":"is","subject":"v4","property":"var","select":"subject"},{"relation":"subscript","subject":"v1","property":"v5","select":"property"},{"relation":"test","subject":"v2","property":"v6","select":"property"},{"relation":"length","subject":"v1","property":"v7","select":"property"},{"relation":"is","subject":"v8","property":"literal","select":"subject"},{"relation":"value","subject":"v8","property":"v9","select":"property"},{"relation":"","subject":"v10","property":"","select":"subject"},{"relation":"is","subject":"v11","property":"operator","select":"subject"},{"relation":"value","subject":"v11","property":"v12","select":"property"},{"relation":"equals","subject":"v13","property":"<=","select":"subject"},{"relation":"","subject":"v14","property":"","select":"subject"},{"relation":"location","subject":"v11","property":"v15","select":"property"},{"relation":"location","subject":"v2","property":"v16","select":"property"},{"relation":"equals","subject":"v17","property":"<","select":"subject"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"v1","operator":"in","operand2":"v3"},{"operand1":"v4","operator":"!=","operand2":" "},{"operand1":"v4","operator":"in","operand2":"v5"},{"operand1":"v4","operator":"in","operand2":"v6"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v8","operator":"!=","operand2":" "},{"operand1":"v9","operator":"==","operand2":"v7"},{"operand1":"v8","operator":"in","operand2":"v6"},{"operand1":"v11","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v13","operator":"==","operand2":"v12"},{"operand1":"v11","operator":"in","operand2":"v6"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v16","operator":"contains","operand2":"v15"},{"operand1":"","operator":"==","operand2":""}],"references":[],"refactoring":[]});
-		this.kb.insert({"name":"AR1-1","misconception":"Understanding off-by-one errors with arrays in loops.","issue":"An array is referenced by a loop iterator that becomes equal to its length.","solution":"Replace <= with <","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"for","select":"subject"},{"relation":"includes","subject":"v2","property":"v3","select":"property"},{"relation":"is","subject":"v4","property":"var","select":"subject"},{"relation":"subscript","subject":"v1","property":"v5","select":"property"},{"relation":"test","subject":"v2","property":"v6","select":"property"},{"relation":"length","subject":"v1","property":"v7","select":"property"},{"relation":"is","subject":"v8","property":"literal","select":"subject"},{"relation":"value","subject":"v8","property":"v9","select":"property"},{"relation":"","subject":"v10","property":"","select":"subject"},{"relation":"is","subject":"v11","property":"operator","select":"subject"},{"relation":"value","subject":"v11","property":"v12","select":"property"},{"relation":"equals","subject":"v13","property":"<=","select":"subject"},{"relation":"","subject":"v14","property":"","select":"subject"},{"relation":"location","subject":"v11","property":"v15","select":"property"},{"relation":"location","subject":"v2","property":"v16","select":"property"},{"relation":"equals","subject":"v17","property":"<","select":"subject"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"v1","operator":"in","operand2":"v3"},{"operand1":"v4","operator":"!=","operand2":" "},{"operand1":"v4","operator":"in","operand2":"v5"},{"operand1":"v4","operator":"in","operand2":"v6"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v8","operator":"!=","operand2":" "},{"operand1":"v9","operator":"==","operand2":"v7"},{"operand1":"v8","operator":"in","operand2":"v6"},{"operand1":"v11","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v13","operator":"==","operand2":"v12"},{"operand1":"v11","operator":"in","operand2":"v6"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v16","operator":"contains","operand2":"v15"},{"operand1":"","operator":"==","operand2":""}],"references":[],"refactoring":[{"left":"v13","operator":"replace","right":"v15"}]});
-		this.kb.insert({"name":"SVS-1","misconception":"Understanding the difference between variable values and literal values.","issue":"The value of a variable exists in other places as literal value.","solution":"Replace the literal values with the variable value.","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"},{"relation":"is","subject":"v2","property":"literal","select":"subject"},{"relation":"value","subject":"v1","property":"v3","select":"property"},{"relation":"is","subject":"v4","property":"literal","select":"subject"},{"relation":"","subject":"v5","property":"","select":"subject"},{"relation":"value","subject":"v2","property":"v6","select":"property"},{"relation":"value","subject":"v4","property":"v7","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"v2","operator":"in","operand2":"v3"},{"operand1":"v4","operator":"!=","operand2":" "},{"operand1":"v4","operator":"!=","operand2":"v2"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v6","operator":"==","operand2":"v7"}],"references":[],"refactoring":[]});
-		this.kb.insert({"name":"SVS-2","misconception":"Understanding the necessity of variables/constants.","issue":"The same literal value exists in many locations.","solution":"Replace the values with a variable.","facts":[{"relation":"is","subject":"v1","property":"literal","select":"subject"},{"relation":"value","subject":"v1","property":"v2","select":"property"},{"relation":"is","subject":"v3","property":"literal","select":"subject"},{"relation":"value","subject":"v3","property":"v4","select":"property"},{"relation":"","subject":"v5","property":"","select":"subject"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v3","operator":"!=","operand2":" "},{"operand1":"v4","operator":"==","operand2":"v2"},{"operand1":"v3","operator":"!=","operand2":"v1"}],"references":[],"refactoring":[]});
-		this.kb.insert({"name":"SVS-3","misconception":"Understanding the necessity of variables when referring to array length.","issue":"Literal value that corresponds to the length of an array exists in the conditional part of a loop.","solution":"Replace the value with the array property.","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"for","select":"subject"},{"relation":"test","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"is","subject":"v5","property":"literal","select":"subject"},{"relation":"location","subject":"v5","property":"v6","select":"property"},{"relation":"value","subject":"v5","property":"v7","select":"property"},{"relation":"location","subject":"v2","property":"v8","select":"property"},{"relation":"","subject":"v9","property":"","select":"subject"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"","operator":"==","operand2":""},{"operand1":"v5","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v7","operator":"==","operand2":"v4"},{"operand1":"v8","operator":"contains","operand2":"v6"},{"operand1":"v5","operator":"in","operand2":"v3"}],"references":[],"refactoring":[]});
-		this.kb.insert({"name":"SVS-4","misconception":"Understanding the role of the variable declaration.","issue":"Multiple declarations of the same variable.","solution":"Remove the word var after the initial declaration.","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"}],"rules":[{"operand1":"v1","operator":"is not","operand2":"distinct"}],"references":[],"refactoring":[]});
+		this.kb.insert({"priority":"","name":"SCO-4","misconception":"Understanding the difference between block scope and function scope.","issue":"A variable is declared within a block of statements.","solution":"Move the declaration before the block.","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"},{"relation":"is","subject":"v2","property":"block","select":"subject"},{"relation":"location","subject":"v1","property":"v3","select":"property"},{"relation":"location","subject":"v2","property":"v4","select":"property"},{"relation":"is","subject":"v5","property":"structure","select":"subject"},{"relation":"relates","subject":"v5","property":"v6","select":"property"},{"relation":"location","subject":"v5","property":"v7","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v4","operator":"contains","operand2":"v3"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v6","operator":"==","operand2":"v2"},{"operand1":"","operator":"==","operand2":""}],"references":[],"refactoring":[]});
+//		this.kb.insert({"priority":"","name":"AR1-1","misconception":"Understanding off-by-one errors with arrays in loops.","issue":"An array is referenced by a loop iterator that becomes equal to its length.","solution":"Replace <= with <","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"for","select":"subject"},{"relation":"includes","subject":"v2","property":"v3","select":"property"},{"relation":"is","subject":"v4","property":"var","select":"subject"},{"relation":"subscript","subject":"v1","property":"v5","select":"property"},{"relation":"test","subject":"v2","property":"v6","select":"property"},{"relation":"length","subject":"v1","property":"v7","select":"property"},{"relation":"is","subject":"v8","property":"literal","select":"subject"},{"relation":"value","subject":"v8","property":"v9","select":"property"},{"relation":"","subject":"v10","property":"","select":"subject"},{"relation":"is","subject":"v11","property":"operator","select":"subject"},{"relation":"value","subject":"v11","property":"v12","select":"property"},{"relation":"equals","subject":"v13","property":"<=","select":"subject"},{"relation":"","subject":"v14","property":"","select":"subject"},{"relation":"location","subject":"v11","property":"v15","select":"property"},{"relation":"location","subject":"v2","property":"v16","select":"property"},{"relation":"equals","subject":"v17","property":"<","select":"subject"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"v1","operator":"in","operand2":"v3"},{"operand1":"v4","operator":"!=","operand2":" "},{"operand1":"v4","operator":"in","operand2":"v5"},{"operand1":"v4","operator":"in","operand2":"v6"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v8","operator":"!=","operand2":" "},{"operand1":"v9","operator":"==","operand2":"v7"},{"operand1":"v8","operator":"in","operand2":"v6"},{"operand1":"v11","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v13","operator":"==","operand2":"v12"},{"operand1":"v11","operator":"in","operand2":"v6"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v16","operator":"contains","operand2":"v15"},{"operand1":"","operator":"==","operand2":""}],"references":[],"refactoring":[]});
+		this.kb.insert({"priority":"","name":"AR1-1","misconception":"Understanding off-by-one errors with arrays in loops.","issue":"An array is referenced by a loop iterator that becomes equal to its length.","solution":"Replace <= with <","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"for","select":"subject"},{"relation":"includes","subject":"v2","property":"v3","select":"property"},{"relation":"is","subject":"v4","property":"var","select":"subject"},{"relation":"subscript","subject":"v1","property":"v5","select":"property"},{"relation":"test","subject":"v2","property":"v6","select":"property"},{"relation":"length","subject":"v1","property":"v7","select":"property"},{"relation":"is","subject":"v8","property":"literal","select":"subject"},{"relation":"value","subject":"v8","property":"v9","select":"property"},{"relation":"","subject":"v10","property":"","select":"subject"},{"relation":"is","subject":"v11","property":"operator","select":"subject"},{"relation":"value","subject":"v11","property":"v12","select":"property"},{"relation":"equals","subject":"v13","property":"<=","select":"subject"},{"relation":"","subject":"v14","property":"","select":"subject"},{"relation":"location","subject":"v11","property":"v15","select":"property"},{"relation":"location","subject":"v2","property":"v16","select":"property"},{"relation":"equals","subject":"v17","property":"<","select":"subject"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"v1","operator":"in","operand2":"v3"},{"operand1":"v4","operator":"!=","operand2":" "},{"operand1":"v4","operator":"in","operand2":"v5"},{"operand1":"v4","operator":"in","operand2":"v6"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v8","operator":"!=","operand2":" "},{"operand1":"v9","operator":"==","operand2":"v7"},{"operand1":"v8","operator":"in","operand2":"v6"},{"operand1":"v11","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v13","operator":"==","operand2":"v12"},{"operand1":"v11","operator":"in","operand2":"v6"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v16","operator":"contains","operand2":"v15"},{"operand1":"","operator":"==","operand2":""}],"references":[],"refactoring":[{"left":"v13","operator":"replace","right":"v15"}]});
+		this.kb.insert({"priority":"","name":"SVS-1","misconception":"Understanding the difference between variable values and literal values.","issue":"The value of a variable exists in other places as literal value.","solution":"Replace the literal values with the variable value.","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"},{"relation":"is","subject":"v2","property":"literal","select":"subject"},{"relation":"value","subject":"v1","property":"v3","select":"property"},{"relation":"is","subject":"v4","property":"literal","select":"subject"},{"relation":"","subject":"v5","property":"","select":"subject"},{"relation":"value","subject":"v2","property":"v6","select":"property"},{"relation":"value","subject":"v4","property":"v7","select":"property"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"v2","operator":"in","operand2":"v3"},{"operand1":"v4","operator":"!=","operand2":" "},{"operand1":"v4","operator":"!=","operand2":"v2"},{"operand1":"","operator":"==","operand2":""},{"operand1":"v6","operator":"==","operand2":"v7"}],"references":[],"refactoring":[]});
+		this.kb.insert({"priority":"","name":"SVS-2","misconception":"Understanding the necessity of variables/constants.","issue":"The same literal value exists in many locations.","solution":"Replace the literal values with a variable.","facts":[{"relation":"is","subject":"v1","property":"literal","select":"subject"},{"relation":"value","subject":"v1","property":"v2","select":"property"},{"relation":"is","subject":"v3","property":"literal","select":"subject"},{"relation":"value","subject":"v3","property":"v4","select":"property"},{"relation":"","subject":"v5","property":"","select":"subject"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v3","operator":"!=","operand2":" "},{"operand1":"v4","operator":"==","operand2":"v2"},{"operand1":"v3","operator":"!=","operand2":"v1"}],"references":[],"refactoring":[]});
+		this.kb.insert({"priority":"","name":"SVS-3","misconception":"Understanding the necessity of variables when referring to array length.","issue":"Literal value that corresponds to the length of an array exists in the conditional part of a loop.","solution":"Replace the value with the array property.","facts":[{"relation":"is","subject":"v1","property":"array","select":"subject"},{"relation":"is","subject":"v2","property":"for","select":"subject"},{"relation":"test","subject":"v2","property":"v3","select":"property"},{"relation":"length","subject":"v1","property":"v4","select":"property"},{"relation":"is","subject":"v5","property":"literal","select":"subject"},{"relation":"location","subject":"v5","property":"v6","select":"property"},{"relation":"value","subject":"v5","property":"v7","select":"property"},{"relation":"location","subject":"v2","property":"v8","select":"property"},{"relation":"","subject":"v9","property":"","select":"subject"}],"rules":[{"operand1":"v1","operator":"!=","operand2":" "},{"operand1":"v2","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"","operator":"==","operand2":""},{"operand1":"v5","operator":"!=","operand2":" "},{"operand1":"","operator":"==","operand2":""},{"operand1":"v7","operator":"==","operand2":"v4"},{"operand1":"v8","operator":"contains","operand2":"v6"},{"operand1":"v5","operator":"in","operand2":"v3"}],"references":[],"refactoring":[]});
+		this.kb.insert({"priority":"","name":"SVS-4","misconception":"Understanding the role of the variable declaration.","issue":"Multiple declarations of the same variable.","solution":"Remove the word var after the initial declaration.","facts":[{"relation":"is","subject":"v1","property":"var","select":"subject"}],"rules":[{"operand1":"v1","operator":"is not","operand2":"distinct"}],"references":[],"refactoring":[]});
+	}
+
+	//load kb with rules
+	this.loadJSLint = function()
+	{
+		this.jslintbase.insert({"priority":"1","name":"M1","misconception":"","issue":"","solution":"'.....' is already defined.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"2","name":"M2","misconception":"","issue":"","solution":"'.....' is a statement label.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"3","name":"M3","misconception":"","issue":"","solution":"'.....' used out of scope.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"35","name":"M4","misconception":"","issue":"","solution":"\\['.....'\\] is better written in dot notation.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"4","name":"M5","misconception":"","issue":"","solution":"'.....' is not a function.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"64","name":"M6","misconception":"","issue":"","solution":"'.....' was used before it was defined.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"36","name":"M7","misconception":"","issue":"","solution":"A constructor name '.....' should start with an uppercase letter.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"37","name":"M8","misconception":"","issue":"","solution":"A regular expression literal can be confused with '/='.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"38","name":"M9","misconception":"","issue":"","solution":"A trailing decimal point can be confused with a dot: '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"5","name":"M10","misconception":"","issue":"","solution":"Bad assignment.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"6","name":"M11","misconception":"","issue":"","solution":"Bad constructor.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"39","name":"M12","misconception":"","issue":"","solution":"Confusing use of '-'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"40","name":"M13","misconception":"","issue":"","solution":"Confusing use of '+'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":7,"name":"M14","misconception":"","issue":"","solution":"Do not use ..... as a constructor.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"8","name":"M15","misconception":"","issue":"","solution":"Do not use 'new' for side effects.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"9","name":"M16","misconception":"","issue":"","solution":"Do not wrap function literals in parens unless they are to be immediately invoked.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"65","name":"M17","misconception":"","issue":"","solution":"Don't make functions within a loop.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"10","name":"M18","misconception":"","issue":"","solution":"Duplicate '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"56","name":"M19","misconception":"","issue":"","solution":"Empty block.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"41","name":"M20","misconception":"","issue":"","solution":"Empty class.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"42","name":"M21","misconception":"","issue":"","solution":"eval is evil.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		//this.jslintbase.insert({"priority":"","name":"M22","misconception":"","issue":"","solution":"Expected ';' and instead saw '}'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"43","name":"M23","misconception":"","issue":"","solution":"Expected a string and instead saw 'STRING_TYPE'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"57","name":"M24","misconception":"","issue":"","solution":"Expected an assignment or function call and instead saw an expression.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"11","name":"M25","misconception":"","issue":"","solution":"Expected an identifier and instead saw '.....' \\(a reserved word\\).","evidence":"","facts":[],"references":[],"refactoring":[]});
+		//this.jslintbase.insert({"name":"","misconception":"","issue":"","solution":"Unexpected parameter 'value' in get x function.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"12","name":"M26","misconception":"","issue":"","solution":"Function statements are not invocable. Wrap the whole function invocation in parens.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"13","name":"M27","misconception":"","issue":"","solution":"Function statements should not be placed in blocks.Use a function expression or move the statement to the top of the outer function.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"44","name":"M28","misconception":"","issue":"","solution":"Implied eval is evil. Pass a function instead of a string.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":14,"name":"M29","misconception":"","issue":"","solution":"It is not necessary to initialize '.....' to 'undefined'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"15","name":"M30","misconception":"","issue":"","solution":"Missing '()'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"16","name":"M31","misconception":"","issue":"","solution":"Missing name in function statement.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"45","name":"M32","misconception":"","issue":"","solution":"Missing radix parameter.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"17","name":"M33","misconception":"","issue":"","solution":"Move the invocation into the parens that contain the function.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":62,"name":"M34","misconception":"","issue":"","solution":"Move 'var' declarations to the top of the function.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"46","name":"M35","misconception":"","issue":"","solution":"Nested comment.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"18","name":"M36","misconception":"","issue":"","solution":"Only properties should be deleted.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"58","name":"M37","misconception":"","issue":"","solution":"Variable ..... was not declared correctly.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"19","name":"M38","misconception":"","issue":"","solution":"Read only.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"20","name":"M39","misconception":"","issue":"","solution":"Spaces are hard to count. Use {.....}.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"","name":"M40","misconception":"","issue":"","solution":"Stopping. \\(.....\\% scanned\\).","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"21","name":"M41","misconception":"","issue":"","solution":"The '.....' subexpression should be wrapped in parens.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"22","name":"M42","misconception":"","issue":"","solution":"The body of a for in should be wrapped in an if statement to filter unwanted properties from the prototype.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"47","name":"M43","misconception":"","issue":"","solution":"The Function constructor is eval.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"48","name":"M44","misconception":"","issue":"","solution":"This is an ES5 feature.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"23","name":"M45","misconception":"","issue":"","solution":"Unclosed comment.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"24","name":"M46","misconception":"","issue":"","solution":"Unclosed regular expression.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"25","name":"M47","misconception":"","issue":"","solution":"Unclosed string.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"26","name":"M48","misconception":"","issue":"","solution":"Unexpected '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"59","name":"M49","misconception":"","issue":"","solution":"Unexpected assignment expression.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"27","name":"M50","misconception":"","issue":"","solution":"Unexpected comment.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		//this.jslintbase.insert({"priority":"","name":"M51","misconception":"","issue":"","solution":"Unexpected 'const'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"49","name":"M52","misconception":"","issue":"","solution":"Unexpected dangling '_' in '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		//this.jslintbase.insert({"priority":"","name":"M53","misconception":"","issue":"","solution":"Unexpected 'new'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"50","name":"M54","misconception":"","issue":"","solution":"Unexpected sync method: '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"55","name":"M55","misconception":"","issue":"","solution":"Unexpected TODO comment.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"51","name":"M56","misconception":"","issue":"","solution":"Unexpected 'with'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		//this.jslintbase.insert({"priority":"","name":"M57","misconception":"","issue":"","solution":"Uninitialized '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"63","name":"M58","misconception":"","issue":"","solution":"Unnecessary 'else' after disruption.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"52","name":"M59","misconception":"","issue":"","solution":"Unnecessary 'use strict'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"28","name":"M60","misconception":"","issue":"","solution":"Unused '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"29","name":"M61","misconception":"","issue":"","solution":"Use a named parameter.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"53","name":"M62","misconception":"","issue":"","solution":"Use the || operator.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"30","name":"M63","misconception":"","issue":"","solution":"Use the array literal notation [].","evidence":"","facts":[],"references":[],"refactoring":[]});
+		//this.jslintbase.insert({"name":"","misconception":"","issue":"","solution":"Use the function form of 'use strict'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"31","name":"M64","misconception":"","issue":"","solution":"Use the isNaN function to compare with NaN.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"32","name":"M65","misconception":"","issue":"","solution":"Use the object literal notation {} or Object.create(null).","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"60","name":"M66","misconception":"","issue":"","solution":"Weird assignment.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"61","name":"M67","misconception":"","issue":"","solution":"Weird relation.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"33","name":"M68","misconception":"","issue":"","solution":"Wrap an immediate function invocation in parentheses to assist the reader in understanding that the expression is the result of a function, and not the function itself.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"34","name":"M69","misconception":"","issue":"","solution":"'.....' is not a label.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"54","name":"M70","misconception":"","issue":"","solution":"master is undefined","evidence":"","facts":[],"references":[],"refactoring":[]});
 	}
 	
 	this.displayFacts = function()
 	{
 		console.table(this.wm().get());		
+	}
+	
+	this.getDebugReport = function()
+	{
+		//count errors
+		var count = this.debugbase().count();
+		
+		if(count === 0)
+		{
+			return '';
+		}
+		
+		var html = '';
+		html+="<table id='level2report'>";
+		html+="<caption>Debugging Report: "+new Date().toLocaleString()+"</caption>";
+
+		//get all rows as an array
+		var errors = this.debugbase().get();
+		
+		//remove records
+		this.debugbase().remove();
+
+		for(var i = 0; i < errors.length; i++)
+		{
+			if(errors[i] != null)
+			{
+				if(i!=0)
+				{
+					html+="<tr class='divider'>";
+					html+="<td colspan='2'><hr/>";		
+					html+="</td>";
+					html+="</tr>";
+				}
+
+				html+="<tr>";
+				html+="<td>";
+				html+="<span>"+(errors[i].reason)+"</span>";
+				html+="</td>";
+				html+="<td>";
+				html+="<cite>line:"+(errors[i].line)+", character:"+(errors[i].character)+"</cite>";
+				html+="</td>";
+				html+="</tr>";
+				html+="<tr>";
+				html+="<td class='evidence'>";
+				html+="<pre>"+(errors[i].evidence===undefined?"":errors[i].evidence)+"</pre>";
+				html+="</td>";
+				html+="</tr>";
+			}
+		}
+		
+		html+="</table>";
+		return html;
 	}
 	
 	//checks whether facts satisfy rules and activate them (Rule Activation Component)
@@ -107,7 +241,7 @@ function RBReasoner()
 					agenda.insert(activeRule);
 
 					console.info('*** rule: ' + ruleName + ' is activated');
-					updateJournal(ruleName, 'activated', codeid);
+					updateJournal(ruleName, '', 'activated', codeid, 0);
 				}
 			}
 		);
@@ -286,8 +420,114 @@ function RBReasoner()
 		return false;
 	}
 	
-	//analyses code, identifies misconceptions and decides on how to support the student
-	this.getSupport = function()
+	this.setLevel2Feedback = function(errors)
+	{
+		var reason = null;
+		var line = null;
+		var character = null;
+		var evidence  = null;
+		var solution = null;
+		var rule = null;
+		var activeRule = null;
+		var jslintbase = this.jslintbase().get();
+		var i = null;
+		var j = null;
+
+		for(var i = 0; i < errors.length; i++)
+		{
+			if(errors[i] != null)
+			{
+				reason = errors[i].reason;
+				line = errors[i].line;
+				character = errors[i].character;
+				evidence = errors[i].evidence === undefined ? "" : errors[i].evidence;
+				rule = null;
+				
+				for(j = 0; j < jslintbase.length; j++)
+				{
+					solution = jslintbase[j].solution;
+					
+					//if the solution pattern to the problem is the reason the error was generated
+					if (this.matchL2Rule(solution, reason) === true)
+					{
+						console.log(solution);
+						rule = jslintbase[j];
+					}
+					
+					//console.log(solution, reason, '\n');
+				}
+
+				if(rule === null)
+				{
+					this.debugbase.insert({"reason":reason,"line":line,"character":character,"evidence":evidence});
+				}
+				else
+				{
+					var activeRule = {};
+					activeRule.name = rule['name'];
+					activeRule.misconception = rule['misconception'];
+					activeRule.issue = rule['issue'];
+					activeRule.solution = reason;
+					activeRule.evidence = evidence;
+					activeRule.line = line;
+					activeRule.character = character;
+					activeRule.priority = rule['priority'];
+
+					if(activeRule.priority !== '')
+					{
+						this.agenda.insert(activeRule);
+						console.info('*** rule: ' + rule['name'] + ' is activated');
+						this.updateJournal(rule['name'], '', 'activated', this.currentCodeID, 0);				
+					}
+				}
+				console.log(reason, rule !== null, '\n');
+			}
+		}
+		console.table(this.agenda().get());
+		console.table(this.journal().get());
+	}
+	
+	this.matchL2Rule = function(template, feedback)
+	{
+		var placeholder = '.....';
+		var position = template.indexOf(placeholder);
+		//text.write(position, '\n');
+
+		var flags = 'gi';
+		var regexp = null;
+		var found = false;
+
+		if(position !== -1)
+		{
+			template = template.split(placeholder);
+			template = '^' + template[0] + '.*' + template[1] + '$';
+			regexp = new RegExp(template, flags);
+			//text.write(template, '\n');
+			found = regexp.test(feedback);
+		}
+		else
+		{
+			found = template === feedback;
+		}
+		
+		return found;
+	}
+	
+	this.getL2RuleRegExp = function(template)
+	{
+		var placeholder = '.....';
+		var position = template.indexOf(placeholder);
+
+		if(position !== -1)
+		{
+			template = template.split('.....');
+			template = '/^' + template[0] + '.*' + template[1] + '$/';
+		}
+		
+		return template;
+	}
+	
+	this.updateCurrentCode = function()
 	{
 		//get highlighted text
 		var code=this.editor.getCopyText();
@@ -311,6 +551,30 @@ function RBReasoner()
 		
 		//update current code ID from the database
 		this.currentCodeID = record.id;
+	}
+	
+	//analyses code, identifies misconceptions and decides on how to support the student
+	this.getSupport = function()
+	{
+		//get highlighted text
+		var code=this.editor.getCopyText();
+
+		if(code.trim() === '')
+		{
+			//get code that is not highlighted
+			code=this.editor.getSession().getValue();
+		}
+
+		if(code.trim() === '')
+		{
+			return false;
+		}
+
+		//insert code into the codebase
+		//this.updateCurrentCode();
+		
+		//update current code ID from the database
+		//this.currentCodeID = record.id;
 
 		//use esprima to get the AST
 		var ast = this.getAST(code, true, true, true, true);
@@ -332,23 +596,25 @@ function RBReasoner()
 		
 //display the data portion in the journal
 console.table(this.journal().select('data'));		
+console.table(this.agenda().get());
 
 		//if there are active rules in the agenda, there is support available
 		return this.agenda().count() > 0;
 	}
 	
-	this.updateJournal = function(name, state, codeid)
+	this.updateJournal = function(name, userid, state, codeid, level)
 	{
 
 		var record = {};
 		record.id = Date.now();
-		record.userid = '';
+		record.userid = userid;
 		record.issuer = 'system';
 		record.type = 'help';
 		record.data = {};
 		record.data.misconception = name;
 		record.data.state = state;
 		record.data.codeid = codeid;
+		record.data.level = level;
 		this.journal.insert(record);
 	}
 	
@@ -450,7 +716,180 @@ console.table(this.journal().select('data'));
 		return html;
 	}
 	
-	this.selectRuleToFire =  function()
+	this.getHelpReport = function(previousPriority)
+	{
+		var priority = this.selectRuleToFire(previousPriority);
+
+		if(priority === null)
+		{
+			console.log('no help is available');
+			return '';
+		}
+		
+		var journal = this.journal;
+		
+		var rule = this.agenda({'priority':priority}).get()[0];
+
+		//update the journal  - tell it that this rule fired
+		this.updateJournal(rule.name, '', 'fired', reasoner.currentCodeID, 1);
+		
+		var html="";
+
+		html+="<table id='level3report'>";
+		html+="<caption>Help provided at: "+new Date().toLocaleString()+"</caption>";
+
+		html+="<tr>";
+		
+		if(('line' in rule) && ('character' in rule))
+		{
+			html+="<td>";
+			html+="<span>"+(rule.solution)+"</span>";
+			html+="</td>";
+			html+="<td colspan='2' style='text-align:center'>";
+			html+="<cite>line:"+(rule.line)+", character:"+(rule.character)+"</cite>";
+			html+="</td>";
+		}
+		else
+		{
+			html+="<td colspan='3'>";
+			html+="<span>"+(rule.solution)+"</span>";
+			html+="</td>";		
+		}
+
+		html+="</tr>";
+
+		if('evidence' in rule)
+		{
+			html+="<tr>";
+			html+="<td class='evidence' colspan='3'>";
+			html+="<pre>"+(rule.evidence)+"</pre>";
+			html+="</td>";
+			html+="</tr>";
+		}
+
+		html+="<tr style='display:none'>";
+		html+="<td>";
+		html+="<input type='button' value='read more about it...' onclick='readDoc(" + '"' + rule.name + '"' + ")'/>";
+		html+="</td>";		
+		html+="<td colspan='2' style='text-align:center'>";
+		html+="<span>documentation</span>";
+		html+="</td>";		
+		html+="</tr>";
+
+		html+="<tr style='display:none'>";
+		html+="<td>";
+		html+="<input type='button' value='show me what it does' onclick='displayVisualisation();'/>";
+		html+="</td>";		
+		html+="<td colspan='2' style='text-align:center'>";
+		html+="<span>visualisation</span>";
+		html+="</td>";		
+		html+="</tr>";
+		
+		html+="<tr><td colspan='3'><hr/></td></tr>";
+
+		html+="<tr>";
+		html+="<td style='text-align:center'>";
+		html+="<span>Is this helpful?</span>";
+		html+="</td>";
+		html+="<td style='width:15%'>";
+		html+="<input type='button' value='Yes' onclick='recordStudentOpinion(this)'/>";
+		html+="</td>";
+		html+="<td style='width:15%'>";
+		html+="<input type='button' value='No' onclick='recordStudentOpinion(this)'/>";
+		html+="</td>";
+		html+="</tr>";
+
+		html+="<tr style='display:none'><td colspan='3'><hr/></td></tr>";
+
+		html+="<tr style='display:none'>";
+		html+="<td colspan='2'>";
+		html+="<input type='button' value='That is not enough. Tell me more.' onclick='getMoreHelp(this,\"" + rule.name + "\"," + priority + ")'/>";
+		html+="</td>";
+		html+="<td rowspan='2' style='text-align:center;width:15%'>";
+		html+="<span>Why not?</span>";
+		html+="</td>";
+		html+="</tr>";
+		html+="<tr style='display:none'>";
+		html+="<td colspan='2'>";
+		html+="<input type='button' value='That was clear. I need help on something else.' onclick='getMoreHelp(this,\"" + rule.name + "\"," + priority + ")'/>";
+		html+="</td>";
+		html+="</tr>";
+		
+/*		
+		html+="<tr>";
+		html+="<td style='width:50%;background-color:#FFFFFF' colspan='2'>";
+		
+		if(ruleName === record.name)
+		{
+			html+="<input style='width:100%;background-color:#F06856;' type='button' value='more help...' onclick='moreHelp(this, " + '"' + record.name + '"' + ")'/>";
+		}
+		else
+		{
+			html+="<input style='width:100%' type='button' value='more help...' onclick='moreHelp(this, " + '"' + record.name + '"' + ")'/>";
+		}
+		
+		html+="</td>";
+		html+="<td style='background-color:#FFFFFF'>";
+		html+="<input style='width:100%' type='button' value='not relevant' onclick='deleteEntry(this, " + '"' + record.name + '"' + ")'/>";
+		html+="</td>";
+		html+="</tr>";							
+		html+="<tr>";
+		html+="<td style='width:25%'>";
+		html+="<span>misconception:</span>";
+		html+="</td>";
+		html+="<td colspan='2'>";
+		html+="<cite>" + record.misconception + "</cite>";
+		html+="</td>";
+		html+="</tr>";
+		html+="<tr style='display:none'>";
+		html+="<td class='evidence'>";
+		html+="<span>issue:</span>";
+		html+="</td>";
+		html+="<td class='evidence' colspan='2'>";
+		html+="<span>" + record.issue + "</span>";
+		html+="</td>";
+		html+="</tr>";
+		html+="<tr style='display:none'>";
+		html+="<td class='evidence'>";
+		html+="<span>documentation:</span>";
+		html+="</td>";
+		html+="<td class='evidence' colspan='2'>";
+		html+="<input style='width:100%' type='button' value='read more about it...' onclick='readDoc(" + '"' + record.name + '"' + ")'/>";
+		html+="</td>";
+		html+="</tr>";
+		html+="<tr style='display:none'>";
+		html+="<td class='evidence'>";
+		html+="<span>solution:</span>";
+		html+="</td>";
+		html+="<td class='evidence' colspan='2'>";
+		html+="<span>" + record.solution + "</span>";
+		html+="</td>";
+		html+="</tr>";
+		html+="<tr style='display:none'>";
+		html+="<td class='evidence'>";
+		html+="<span>visualisation:</span>";
+		html+="</td>";
+		html+="<td class='evidence' colspan='2'>";
+		html+="<input style='width:100%' type='button' value='show me what it does' onclick='displayVisualisation();'/>";
+		html+="</td>";
+		html+="</tr>";
+		if(Object.keys(record.refactoring).length !== 0)
+		{
+			html+="<tr style='display:none'>";
+			html+="<td class='evidence'>";
+			html+="<span>refactoring:</span>";
+			html+="</td>";
+			html+="<td class='evidence' colspan='2'>";
+			html+="<input style='width:100%' type='button' value='fix it for me' onclick='reasoner.refactor(" + '"' + record.name + '"' + ")'/>";
+			html+="</td>";
+			html+="</tr>";
+		}		
+*/		
+		html+="</table>";
+		return html;
+	}
+
+	this.selectRuleToFire =  function(previousPriority)
 	{
 		//if there are no rules in the agenda stop
 		var rulesCount = this.agenda().count();
@@ -458,15 +897,24 @@ console.table(this.journal().select('data'));
 		if(rulesCount === 0)
 		{
 			console.log('there are no rules in the agenda!');
-			return '';
+			return null;
 		}
 		
 		//find the lowest number of facts in the set
-		var factCount = this.agenda().min('factCount');
+		//var factCount = this.agenda().min('factCount');
+
+		//find the lowest priority number
+		var priority = this.agenda({'priority':{'>':previousPriority}}).min('priority');
+console.log('************priority:', previousPriority, priority, '\n');	
+		//select and return the rule with that number
+		var rule = this.agenda({'priority':priority}).get()[0];
 		
-		//select and return the rule with the lowest number of facts
-		var rule = this.agenda({'factCount':factCount}).get()[0];
-		return rule.name;
+		if(typeof rule === 'undefined')
+		{
+			return null;
+		}
+		
+		return rule.priority;
 	}
 	
 	this.refactor = function(ruleName)
@@ -1112,13 +1560,13 @@ console.table(this.journal().select('data'));
 		}	
 	}
 	
-	this.getPreviousHelp = function(id)
+	this.getPreviousHelp = function(name)
 	{
 		return this.journal
 		(
 			function()
 			{
-				return (this.type === 'help' && this.data.misconception === id && this.data.state === 'fired');
+				return (this.type === 'help' && this.data.misconception === name && this.data.state === 'fired');
 			}
 		).count();
 	}
@@ -1151,7 +1599,7 @@ function moreHelp(object, id)
 	var previousHelp = reasoner.getPreviousHelp(id);
 
 	//update the journal  - tell it that this rule fired
-	reasoner.updateJournal(id, 'fired', reasoner.currentCodeID);
+	reasoner.updateJournal(id, '', 'fired', reasoner.currentCodeID, 0);
 
 //display the journal in the console
 console.table(reasoner.journal().select('data'));
@@ -1209,6 +1657,11 @@ function displayRow(row)
 		}
 }
 
+function hideRow(row)
+{
+	row.style.display = 'none';
+}
+
 function deleteEntry(object, id)
 {
 	var confirmation = confirm("This action will remove the misconception from the list.\nWould you like to continue?");
@@ -1250,7 +1703,7 @@ function deleteEntry(object, id)
 		parent.removeChild(rows[row]);
 	}
 	
-	reasoner.updateJournal(id, 'irrelevant', reasoner.currentCodeID);
+	reasoner.updateJournal(id, '', 'irrelevant', reasoner.currentCodeID, 0);
 	console.table(reasoner.journal().select('data'));
 }
 

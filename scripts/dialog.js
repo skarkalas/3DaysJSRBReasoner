@@ -467,7 +467,31 @@ function validateRule(rule)
 		alert('There is no rule ID.');
 		return false;
 	}
-	
+
+	rule.misconception = document.getElementById('misconception').value;
+
+	if(rule.misconception.trim() === '')
+	{
+		alert('There is description about the misconception.');
+		return false;
+	}
+
+	rule.issue = document.getElementById('issue').value;
+
+	if(rule.issue.trim() === '')
+	{
+		alert('There is no info about the issue.');
+		return false;
+	}
+
+	rule.solution = document.getElementById('solution').value;
+
+	if(rule.solution.trim() === '')
+	{
+		alert('There is no suggestion for a solution.');
+		return false;
+	}
+
 	rule.facts = [];
 	rule.rules = [];
 	

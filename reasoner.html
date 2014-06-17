@@ -428,8 +428,15 @@ alert(sum);
 	function getSupport()
 	{
 //	var s = new Search();
+	try
+	{
 		reasoner.getSupport();
-		reasoner.refactor('AR1-1');
+	}
+	catch(e)
+	{
+		alert(e);
+	}
+//		reasoner.refactor('AR1-1');
 	}
  </script>
 </body>
