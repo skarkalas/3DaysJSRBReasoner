@@ -149,7 +149,7 @@ function RBReasoner()
 		
 		var html = '';
 		html+="<table id='level2report'>";
-		html+="<caption>Debugging Report: "+new Date().toLocaleString()+"</caption>";
+		//html+="<caption>Syntax Issues Report: "+new Date().toLocaleString()+"</caption>";
 
 		//get all rows as an array
 		var errors = this.debugbase().get();
@@ -184,6 +184,16 @@ function RBReasoner()
 				html+="</tr>";
 			}
 		}
+
+		html+="<tr class='divider'>";
+		html+="<td colspan='2'><hr/>";		
+		html+="</td>";
+		html+="</tr>";
+		html+="<tr>";
+		html+="<td colspan='2'>";		
+		html+="<input style='width:100%' type='button' value='Please press this button after you finish.' onclick='stopDebugging();'/>";
+		html+="</td>";
+		html+="</tr>";
 		
 		html+="</table>";
 		return html;
@@ -241,7 +251,7 @@ function RBReasoner()
 					agenda.insert(activeRule);
 
 					console.info('*** rule: ' + ruleName + ' is activated');
-					updateJournal(ruleName, '', 'activated', codeid, 0);
+					updateJournal(ruleName, currentUser, 'activated', codeid, 0);
 				}
 			}
 		);
@@ -477,7 +487,7 @@ function RBReasoner()
 					{
 						this.agenda.insert(activeRule);
 						console.info('*** rule: ' + rule['name'] + ' is activated');
-						this.updateJournal(rule['name'], '', 'activated', this.currentCodeID, 0);				
+						this.updateJournal(rule['name'], currentUser, 'activated', this.currentCodeID, 0, 'system');				
 					}
 				}
 				console.log(reason, rule !== null, '\n');
@@ -553,6 +563,16 @@ function RBReasoner()
 		this.currentCodeID = record.id;
 	}
 	
+	//removes facts from working memory and removed active rules from agenda
+	this.clearMemory = function()
+	{
+		//remove facts from previous analysis
+		this.wm().remove(true);
+		
+		//remove activated rules from the agenda
+		this.agenda().remove(true);	
+	}
+	
 	//analyses code, identifies misconceptions and decides on how to support the student
 	this.getSupport = function()
 	{
@@ -602,13 +622,12 @@ console.table(this.agenda().get());
 		return this.agenda().count() > 0;
 	}
 	
-	this.updateJournal = function(name, userid, state, codeid, level)
+	this.updateJournal = function(name, userid, state, codeid, level, issuer)
 	{
-
 		var record = {};
 		record.id = Date.now();
 		record.userid = userid;
-		record.issuer = 'system';
+		record.issuer = issuer;
 		record.type = 'help';
 		record.data = {};
 		record.data.misconception = name;
@@ -716,7 +735,39 @@ console.table(this.agenda().get());
 		return html;
 	}
 	
-	this.getHelpReport = function(previousPriority)
+	this.getCurrentRuleLevel = function(name)
+	{
+		var records = this.journal
+		(
+			function()
+			{
+				return (this.type === 'help' && this.data.misconception === name && this.data.state === 'fired');
+			}
+		).get();
+		
+		var max = null;
+		var i = null;
+		var level = null;
+		
+		for(i = 0; i < records.length; i++)
+		{
+			if(i === 0)
+			{
+				max = records[i].id;
+			}
+			
+			if(max <= records[i].id)
+			{
+				max = records[i].id;
+				level = records[i].data.level;
+			}
+		}
+		
+console.log('id:', max, '\n');		
+		return level;		
+	}
+	
+	this.getHelpReport = function(previousPriority, level, issuer)
 	{
 		var priority = this.selectRuleToFire(previousPriority);
 
@@ -731,12 +782,12 @@ console.table(this.agenda().get());
 		var rule = this.agenda({'priority':priority}).get()[0];
 
 		//update the journal  - tell it that this rule fired
-		this.updateJournal(rule.name, '', 'fired', reasoner.currentCodeID, 1);
+		this.updateJournal(rule.name, currentUser, 'fired', reasoner.currentCodeID, level, issuer);
 		
 		var html="";
 
 		html+="<table id='level3report'>";
-		html+="<caption>Help provided at: "+new Date().toLocaleString()+"</caption>";
+		//html+="<caption>Help provided at: "+new Date().toLocaleString()+"</caption>";
 
 		html+="<tr>";
 		
@@ -792,10 +843,10 @@ console.table(this.agenda().get());
 		html+="<span>Is this helpful?</span>";
 		html+="</td>";
 		html+="<td style='width:15%'>";
-		html+="<input type='button' value='Yes' onclick='recordStudentOpinion(this)'/>";
+		html+="<input type='button' value='Yes' onclick='recordStudentOpinion(this, \"" + rule.name + "\")'/>";
 		html+="</td>";
 		html+="<td style='width:15%'>";
-		html+="<input type='button' value='No' onclick='recordStudentOpinion(this)'/>";
+		html+="<input type='button' value='No' onclick='recordStudentOpinion(this, \"" + rule.name + "\")'/>";
 		html+="</td>";
 		html+="</tr>";
 
@@ -811,7 +862,7 @@ console.table(this.agenda().get());
 		html+="</tr>";
 		html+="<tr style='display:none'>";
 		html+="<td colspan='2'>";
-		html+="<input type='button' value='That was clear. I need help on something else.' onclick='getMoreHelp(this,\"" + rule.name + "\"," + priority + ")'/>";
+		html+="<input type='button' value='I need help on something else.' onclick='getMoreHelp(this,\"" + rule.name + "\"," + priority + ")'/>";
 		html+="</td>";
 		html+="</tr>";
 		
@@ -1599,7 +1650,7 @@ function moreHelp(object, id)
 	var previousHelp = reasoner.getPreviousHelp(id);
 
 	//update the journal  - tell it that this rule fired
-	reasoner.updateJournal(id, '', 'fired', reasoner.currentCodeID, 0);
+	reasoner.updateJournal(id, currentUser, 'fired', reasoner.currentCodeID, 0);
 
 //display the journal in the console
 console.table(reasoner.journal().select('data'));
@@ -1703,7 +1754,7 @@ function deleteEntry(object, id)
 		parent.removeChild(rows[row]);
 	}
 	
-	reasoner.updateJournal(id, '', 'irrelevant', reasoner.currentCodeID, 0);
+	reasoner.updateJournal(id, currentUser, 'irrelevant', reasoner.currentCodeID, 0);
 	console.table(reasoner.journal().select('data'));
 }
 
