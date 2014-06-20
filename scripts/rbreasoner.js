@@ -130,6 +130,7 @@ function RBReasoner()
 		this.jslintbase.insert({"priority":"33","name":"M68","misconception":"","issue":"","solution":"Wrap an immediate function invocation in parentheses to assist the reader in understanding that the expression is the result of a function, and not the function itself.","evidence":"","facts":[],"references":[],"refactoring":[]});
 		this.jslintbase.insert({"priority":"34","name":"M69","misconception":"","issue":"","solution":"'.....' is not a label.","evidence":"","facts":[],"references":[],"refactoring":[]});
 		this.jslintbase.insert({"priority":"54","name":"M70","misconception":"","issue":"","solution":"master is undefined","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":"66","name":"M71","misconception":"","issue":"","solution":"Don't declare variables in a loop.","evidence":"","facts":[],"references":[],"refactoring":[]});
 	}
 	
 	this.displayFacts = function()
@@ -539,6 +540,12 @@ function RBReasoner()
 	
 	this.updateCurrentCode = function()
 	{
+		if(this.codebase({"id":codeVersion}).count() === 1)
+		{
+			console.log('code exists in db');
+			return false;
+		}
+	
 		//get highlighted text
 		var code=this.editor.getCopyText();
 
@@ -556,11 +563,12 @@ function RBReasoner()
 		//insert code into the codebase
 		var record = {};
 		record.code = code;
-		record.id = Date.now();
+		record.id = codeVersion;
 		this.codebase.insert(record);
 		
 		//update current code ID from the database
 		this.currentCodeID = record.id;
+		return true;
 	}
 	
 	//removes facts from working memory and removed active rules from agenda
@@ -624,6 +632,26 @@ console.table(this.agenda().get());
 	
 	this.updateJournal = function(name, userid, state, codeid, level, issuer)
 	{
+		var entries = this.journal
+		(
+			function()
+			{
+				var result = true;
+				result = result && this.type === 'help';
+				result = result && this.data.misconception === name;
+				result = result && this.data.state === state;
+				result = result && this.data.codeid === codeid;
+				result = result && this.data.level === level;
+				return result;
+			}
+		).count();
+		
+		if(entries > 0)
+		{
+			console.log('journal entry exists');
+			return;
+		}
+		
 		var record = {};
 		record.id = Date.now();
 		record.userid = userid;
@@ -853,15 +881,17 @@ console.log('id:', max, '\n');
 		html+="<tr style='display:none'><td colspan='3'><hr/></td></tr>";
 
 		html+="<tr style='display:none'>";
-		html+="<td colspan='2'>";
-		html+="<input type='button' value='That is not enough. Tell me more.' onclick='getMoreHelp(this,\"" + rule.name + "\"," + priority + ")'/>";
-		html+="</td>";
-		html+="<td rowspan='2' style='text-align:center;width:15%'>";
+		html+="<td colspan='3' style='text-align:center'>";
 		html+="<span>Why not?</span>";
 		html+="</td>";
 		html+="</tr>";
 		html+="<tr style='display:none'>";
-		html+="<td colspan='2'>";
+		html+="<td colspan='3'>";
+		html+="<input type='button' value='That is not enough. Tell me more.' onclick='getMoreHelp(this,\"" + rule.name + "\"," + priority + ")'/>";
+		html+="</td>";
+		html+="</tr>";
+		html+="<tr style='display:none'>";
+		html+="<td colspan='3'>";
 		html+="<input type='button' value='I need help on something else.' onclick='getMoreHelp(this,\"" + rule.name + "\"," + priority + ")'/>";
 		html+="</td>";
 		html+="</tr>";
