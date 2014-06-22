@@ -27,7 +27,7 @@ function RBReasoner()
 			object.agenda = TAFFY();		//empty database for agenda
 			object.jslintbase = TAFFY();	//empty database for jslint
 			object.debugbase = TAFFY();		//empty database for debug info
-	}
+		}
 	)(this);
 	
 	//member methods
@@ -58,79 +58,82 @@ function RBReasoner()
 	//load kb with rules
 	this.loadJSLint = function()
 	{
-		this.jslintbase.insert({"priority":"1","name":"M1","misconception":"","issue":"","solution":"'.....' is already defined.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"2","name":"M2","misconception":"","issue":"","solution":"'.....' is a statement label.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"3","name":"M3","misconception":"","issue":"","solution":"'.....' used out of scope.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"35","name":"M4","misconception":"","issue":"","solution":"\\['.....'\\] is better written in dot notation.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"4","name":"M5","misconception":"","issue":"","solution":"'.....' is not a function.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"64","name":"M6","misconception":"","issue":"","solution":"'.....' was used before it was defined.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"36","name":"M7","misconception":"","issue":"","solution":"A constructor name '.....' should start with an uppercase letter.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"37","name":"M8","misconception":"","issue":"","solution":"A regular expression literal can be confused with '/='.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"38","name":"M9","misconception":"","issue":"","solution":"A trailing decimal point can be confused with a dot: '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"5","name":"M10","misconception":"","issue":"","solution":"Bad assignment.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"6","name":"M11","misconception":"","issue":"","solution":"Bad constructor.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"39","name":"M12","misconception":"","issue":"","solution":"Confusing use of '-'.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"40","name":"M13","misconception":"","issue":"","solution":"Confusing use of '+'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":1,"name":"M1","misconception":"","issue":"","solution":"'.....' is already defined.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":2,"name":"M2","misconception":"","issue":"","solution":"'.....' is a statement label.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":3,"name":"M3","misconception":"","issue":"","solution":"'.....' used out of scope.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":35,"name":"M4","misconception":"","issue":"","solution":"\\['.....'\\] is better written in dot notation.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":4,"name":"M5","misconception":"","issue":"","solution":"'.....' is not a function.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":64,"name":"M6","misconception":"","issue":"","solution":"'.....' was used before it was defined.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":36,"name":"M7","misconception":"","issue":"","solution":"A constructor name '.....' should start with an uppercase letter.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":37,"name":"M8","misconception":"","issue":"","solution":"A regular expression literal can be confused with '/='.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":38,"name":"M9","misconception":"","issue":"","solution":"A trailing decimal point can be confused with a dot: '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":5,"name":"M10","misconception":"","issue":"","solution":"Bad assignment.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":6,"name":"M11","misconception":"","issue":"","solution":"Bad constructor.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":39,"name":"M12","misconception":"","issue":"","solution":"Confusing use of '-'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":40,"name":"M13","misconception":"","issue":"","solution":"Confusing use of '+'.","evidence":"","facts":[],"references":[],"refactoring":[]});
 		this.jslintbase.insert({"priority":7,"name":"M14","misconception":"","issue":"","solution":"Do not use ..... as a constructor.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"8","name":"M15","misconception":"","issue":"","solution":"Do not use 'new' for side effects.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"9","name":"M16","misconception":"","issue":"","solution":"Do not wrap function literals in parens unless they are to be immediately invoked.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"65","name":"M17","misconception":"","issue":"","solution":"Don't make functions within a loop.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"10","name":"M18","misconception":"","issue":"","solution":"Duplicate '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"56","name":"M19","misconception":"","issue":"","solution":"Empty block.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"41","name":"M20","misconception":"","issue":"","solution":"Empty class.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"42","name":"M21","misconception":"","issue":"","solution":"eval is evil.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":8,"name":"M15","misconception":"","issue":"","solution":"Do not use 'new' for side effects.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":9,"name":"M16","misconception":"","issue":"","solution":"Do not wrap function literals in parens unless they are to be immediately invoked.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":65,"name":"M17","misconception":"","issue":"","solution":"Don't make functions within a loop.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":10,"name":"M18","misconception":"","issue":"","solution":"Duplicate '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":56,"name":"M19","misconception":"","issue":"","solution":"Empty block.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":41,"name":"M20","misconception":"","issue":"","solution":"Empty class.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":42,"name":"M21","misconception":"","issue":"","solution":"eval is evil.","evidence":"","facts":[],"references":[],"refactoring":[]});
 		//this.jslintbase.insert({"priority":"","name":"M22","misconception":"","issue":"","solution":"Expected ';' and instead saw '}'.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"43","name":"M23","misconception":"","issue":"","solution":"Expected a string and instead saw 'STRING_TYPE'.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"57","name":"M24","misconception":"","issue":"","solution":"Expected an assignment or function call and instead saw an expression.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"11","name":"M25","misconception":"","issue":"","solution":"Expected an identifier and instead saw '.....' \\(a reserved word\\).","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":43,"name":"M23","misconception":"","issue":"","solution":"Expected a string and instead saw 'STRING_TYPE'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":57,"name":"M24","misconception":"","issue":"","solution":"Expected an assignment or function call and instead saw an expression.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":11,"name":"M25","misconception":"","issue":"","solution":"Expected an identifier and instead saw '.....' \\(a reserved word\\).","evidence":"","facts":[],"references":[],"refactoring":[]});
 		//this.jslintbase.insert({"name":"","misconception":"","issue":"","solution":"Unexpected parameter 'value' in get x function.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"12","name":"M26","misconception":"","issue":"","solution":"Function statements are not invocable. Wrap the whole function invocation in parens.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"13","name":"M27","misconception":"","issue":"","solution":"Function statements should not be placed in blocks.Use a function expression or move the statement to the top of the outer function.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"44","name":"M28","misconception":"","issue":"","solution":"Implied eval is evil. Pass a function instead of a string.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":12,"name":"M26","misconception":"","issue":"","solution":"Function statements are not invocable. Wrap the whole function invocation in parens.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":13,"name":"M27","misconception":"","issue":"","solution":"Function statements should not be placed in blocks.Use a function expression or move the statement to the top of the outer function.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":44,"name":"M28","misconception":"","issue":"","solution":"Implied eval is evil. Pass a function instead of a string.","evidence":"","facts":[],"references":[],"refactoring":[]});
 		this.jslintbase.insert({"priority":14,"name":"M29","misconception":"","issue":"","solution":"It is not necessary to initialize '.....' to 'undefined'.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"15","name":"M30","misconception":"","issue":"","solution":"Missing '()'.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"16","name":"M31","misconception":"","issue":"","solution":"Missing name in function statement.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"45","name":"M32","misconception":"","issue":"","solution":"Missing radix parameter.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"17","name":"M33","misconception":"","issue":"","solution":"Move the invocation into the parens that contain the function.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":15,"name":"M30","misconception":"","issue":"","solution":"Missing '()'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":16,"name":"M31","misconception":"","issue":"","solution":"Missing name in function statement.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":45,"name":"M32","misconception":"","issue":"","solution":"Missing radix parameter.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":17,"name":"M33","misconception":"","issue":"","solution":"Move the invocation into the parens that contain the function.","evidence":"","facts":[],"references":[],"refactoring":[]});
 		this.jslintbase.insert({"priority":62,"name":"M34","misconception":"","issue":"","solution":"Move 'var' declarations to the top of the function.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"46","name":"M35","misconception":"","issue":"","solution":"Nested comment.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"18","name":"M36","misconception":"","issue":"","solution":"Only properties should be deleted.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"58","name":"M37","misconception":"","issue":"","solution":"Variable ..... was not declared correctly.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"19","name":"M38","misconception":"","issue":"","solution":"Read only.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"20","name":"M39","misconception":"","issue":"","solution":"Spaces are hard to count. Use {.....}.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":46,"name":"M35","misconception":"","issue":"","solution":"Nested comment.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":18,"name":"M36","misconception":"","issue":"","solution":"Only properties should be deleted.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":58,"name":"M37","misconception":"","issue":"","solution":"Variable ..... was not declared correctly.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":19,"name":"M38","misconception":"","issue":"","solution":"Read only.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":20,"name":"M39","misconception":"","issue":"","solution":"Spaces are hard to count. Use {.....}.","evidence":"","facts":[],"references":[],"refactoring":[]});
 		this.jslintbase.insert({"priority":"","name":"M40","misconception":"","issue":"","solution":"Stopping. \\(.....\\% scanned\\).","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"21","name":"M41","misconception":"","issue":"","solution":"The '.....' subexpression should be wrapped in parens.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"22","name":"M42","misconception":"","issue":"","solution":"The body of a for in should be wrapped in an if statement to filter unwanted properties from the prototype.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"47","name":"M43","misconception":"","issue":"","solution":"The Function constructor is eval.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"48","name":"M44","misconception":"","issue":"","solution":"This is an ES5 feature.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"23","name":"M45","misconception":"","issue":"","solution":"Unclosed comment.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"24","name":"M46","misconception":"","issue":"","solution":"Unclosed regular expression.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"25","name":"M47","misconception":"","issue":"","solution":"Unclosed string.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"26","name":"M48","misconception":"","issue":"","solution":"Unexpected '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"59","name":"M49","misconception":"","issue":"","solution":"Unexpected assignment expression.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"27","name":"M50","misconception":"","issue":"","solution":"Unexpected comment.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":21,"name":"M41","misconception":"","issue":"","solution":"The '.....' subexpression should be wrapped in parens.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":22,"name":"M42","misconception":"","issue":"","solution":"The body of a for in should be wrapped in an if statement to filter unwanted properties from the prototype.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":47,"name":"M43","misconception":"","issue":"","solution":"The Function constructor is eval.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":48,"name":"M44","misconception":"","issue":"","solution":"This is an ES5 feature.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":23,"name":"M45","misconception":"","issue":"","solution":"Unclosed comment.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":24,"name":"M46","misconception":"","issue":"","solution":"Unclosed regular expression.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":25,"name":"M47","misconception":"","issue":"","solution":"Unclosed string.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":26,"name":"M48","misconception":"","issue":"","solution":"Unexpected '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":59,"name":"M49","misconception":"","issue":"","solution":"Unexpected assignment expression.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":27,"name":"M50","misconception":"","issue":"","solution":"Unexpected comment.","evidence":"","facts":[],"references":[],"refactoring":[]});
 		//this.jslintbase.insert({"priority":"","name":"M51","misconception":"","issue":"","solution":"Unexpected 'const'.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"49","name":"M52","misconception":"","issue":"","solution":"Unexpected dangling '_' in '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":49,"name":"M52","misconception":"","issue":"","solution":"Unexpected dangling '_' in '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
 		//this.jslintbase.insert({"priority":"","name":"M53","misconception":"","issue":"","solution":"Unexpected 'new'.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"50","name":"M54","misconception":"","issue":"","solution":"Unexpected sync method: '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"55","name":"M55","misconception":"","issue":"","solution":"Unexpected TODO comment.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"51","name":"M56","misconception":"","issue":"","solution":"Unexpected 'with'.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		//this.jslintbase.insert({"priority":"","name":"M57","misconception":"","issue":"","solution":"Uninitialized '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"63","name":"M58","misconception":"","issue":"","solution":"Unnecessary 'else' after disruption.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"52","name":"M59","misconception":"","issue":"","solution":"Unnecessary 'use strict'.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"28","name":"M60","misconception":"","issue":"","solution":"Unused '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"29","name":"M61","misconception":"","issue":"","solution":"Use a named parameter.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"53","name":"M62","misconception":"","issue":"","solution":"Use the || operator.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"30","name":"M63","misconception":"","issue":"","solution":"Use the array literal notation [].","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":50,"name":"M54","misconception":"","issue":"","solution":"Unexpected sync method: '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":55,"name":"M55","misconception":"","issue":"","solution":"Unexpected TODO comment.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":51,"name":"M56","misconception":"","issue":"","solution":"Unexpected 'with'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":70,"name":"M57","misconception":"","issue":"","solution":"Uninitialized '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":63,"name":"M58","misconception":"","issue":"","solution":"Unnecessary 'else' after disruption.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":52,"name":"M59","misconception":"","issue":"","solution":"Unnecessary 'use strict'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":28,"name":"M60","misconception":"","issue":"","solution":"Unused '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":29,"name":"M61","misconception":"","issue":"","solution":"Use a named parameter.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":53,"name":"M62","misconception":"","issue":"","solution":"Use the || operator.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":30,"name":"M63","misconception":"","issue":"","solution":"Use the array literal notation [].","evidence":"","facts":[],"references":[],"refactoring":[]});
 		//this.jslintbase.insert({"name":"","misconception":"","issue":"","solution":"Use the function form of 'use strict'.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"31","name":"M64","misconception":"","issue":"","solution":"Use the isNaN function to compare with NaN.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"32","name":"M65","misconception":"","issue":"","solution":"Use the object literal notation {} or Object.create(null).","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"60","name":"M66","misconception":"","issue":"","solution":"Weird assignment.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"61","name":"M67","misconception":"","issue":"","solution":"Weird relation.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"33","name":"M68","misconception":"","issue":"","solution":"Wrap an immediate function invocation in parentheses to assist the reader in understanding that the expression is the result of a function, and not the function itself.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"34","name":"M69","misconception":"","issue":"","solution":"'.....' is not a label.","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"54","name":"M70","misconception":"","issue":"","solution":"master is undefined","evidence":"","facts":[],"references":[],"refactoring":[]});
-		this.jslintbase.insert({"priority":"66","name":"M71","misconception":"","issue":"","solution":"Don't declare variables in a loop.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":31,"name":"M64","misconception":"","issue":"","solution":"Use the isNaN function to compare with NaN.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":32,"name":"M65","misconception":"","issue":"","solution":"Use the object literal notation {} or Object.create(null).","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":60,"name":"M66","misconception":"","issue":"","solution":"Weird assignment.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":61,"name":"M67","misconception":"","issue":"","solution":"Weird relation.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":33,"name":"M68","misconception":"","issue":"","solution":"Wrap an immediate function invocation in parentheses to assist the reader in understanding that the expression is the result of a function, and not the function itself.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":34,"name":"M69","misconception":"","issue":"","solution":"'.....' is not a label.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":54,"name":"M70","misconception":"","issue":"","solution":"master is undefined","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":66,"name":"M71","misconception":"","issue":"","solution":"Don't declare variables in a loop.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":67,"name":"M72","misconception":"","issue":"","solution":"Strange loop.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":68,"name":"M73","misconception":"","issue":"","solution":"Expected '{' and instead saw '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
+		this.jslintbase.insert({"priority":69,"name":"M74","misconception":"","issue":"","solution":"Unexpected label '.....'.","evidence":"","facts":[],"references":[],"refactoring":[]});
 	}
 	
 	this.displayFacts = function()
@@ -186,13 +189,13 @@ function RBReasoner()
 			}
 		}
 
-		html+="<tr class='divider'>";
+		html+="<tr>";
 		html+="<td colspan='2'><hr/>";		
 		html+="</td>";
 		html+="</tr>";
 		html+="<tr>";
 		html+="<td colspan='2'>";		
-		html+="<input style='width:100%' type='button' value='Please press this button after you finish.' onclick='stopDebugging();'/>";
+		html+="<input style='width:100%' type='button' value='Please press this button to continue.' onclick='stopDebugging();'/>";
 		html+="</td>";
 		html+="</tr>";
 		

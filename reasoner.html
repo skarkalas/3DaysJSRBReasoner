@@ -416,6 +416,7 @@ alert(sum);
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/eclipse");
     editor.getSession().setMode("ace/mode/javascript");
+	editor.getSession().setUseWorker(false);
 			//change references to ace constructors
 		var Search = ace.require('ace/search').Search;
 		var Range = ace.require('ace/range').Range;
